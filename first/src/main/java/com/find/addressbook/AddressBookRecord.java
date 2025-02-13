@@ -1,4 +1,4 @@
-package addressbook;
+package com.find.addressbook;
 
 public class AddressBookRecord {
     String id;
