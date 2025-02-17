@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <field name="ID" size="4" />
+    <field name="Name" size="50" />
+    <field name="Phone" size="30" />
+    <field name="Street" size="50" />
+    <field name="Locality" size="30" />
+    <field name="City" size="30" />
+    <field name="State" size="30" />
+    <field name="Pincode" size="4" />
+    <field name="Country" size="20" />
+    <field name="Total" size="263" />
+</config>
