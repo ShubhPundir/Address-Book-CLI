@@ -44,6 +44,10 @@ public class ConfigReader {
         for (int size : fieldSizes.values()) {
             totalSize += size;
         }
-        return totalSize + 8; // Adding 8 bytes for the two integers (id and pincode)
+        return totalSize;
+    }
+
+    public Map<String, Integer> getFields(){
+        return fieldSizes;
     }
 }

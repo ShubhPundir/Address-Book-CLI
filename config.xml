@@ -9,5 +9,4 @@
     <field name="State" size="30" />
     <field name="Pincode" size="4" />
     <field name="Country" size="20" />
-    <field name="Total" size="263" />
 </config>
