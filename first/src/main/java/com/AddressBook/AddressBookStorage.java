@@ -3,11 +3,15 @@ import java.io.*;
 import com.config.ConfigReader;
 
 public class AddressBookStorage {
-    private static final int RECORD_SIZE = ConfigReader.getRecordSize();
-    private static String FILE_NAME = null;
+    private ConfigReader conf;
+    private final int RECORD_SIZE;
+    private String FILE_NAME;
+
+    public AddressBookStorage(String file_name) {
+        this.conf = new ConfigReader();
+        this.RECORD_SIZE = conf.getRecordSize();
+        this.FILE_NAME = file_name;
         
-    AddressBookStorage(String file_name) {
-        FILE_NAME = file_name;
         // Ensure the file exists
         File file = new File(FILE_NAME);
         if (!file.exists()) {
@@ -21,7 +25,7 @@ public class AddressBookStorage {
     }
     
     // Append a new record to the file
-    public static void addRecord(AddressBook record) throws IOException {
+    public void addRecord(AddressBook record) throws IOException {
         try (RandomAccessFile file = new RandomAccessFile(FILE_NAME, "rw")) {
             file.seek(file.length()); // Move to end for appending
             record.writeToFile(file);
@@ -29,7 +33,7 @@ public class AddressBookStorage {
     }
 
     // Read a record by index (assuming fixed-size records)
-    public static AddressBook getRecord(int index) throws IOException {
+    public AddressBook getRecord(int index) throws IOException {
         try (RandomAccessFile file = new RandomAccessFile(FILE_NAME, "r")) {
             file.seek(index * RECORD_SIZE); // Jump to the record position
             return AddressBook.readFromFile(file);
@@ -37,7 +41,7 @@ public class AddressBookStorage {
     }
 
     // Display all records
-    public static void displayAll() throws IOException {
+    public void displayAll() throws IOException {
         try (RandomAccessFile file = new RandomAccessFile(FILE_NAME, "r")) {
             while (file.getFilePointer() < file.length()) {
                 AddressBook record = AddressBook.readFromFile(file);

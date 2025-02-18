@@ -14,16 +14,15 @@ public class AddressBook {
     private int pincode;
     private String country;
 
-    // Integers are always 4 bytes, so no need to load from ConfigReader
     // Load field sizes dynamically from ConfigReader
-    private static final int NAME_SIZE = ConfigReader.getFieldSize("Name");
-    private static final int PHONE_SIZE = ConfigReader.getFieldSize("Phone");
-    private static final int STREET_SIZE = ConfigReader.getFieldSize("Street");
-    private static final int LOCALITY_SIZE = ConfigReader.getFieldSize("Locality");
-    private static final int CITY_SIZE = ConfigReader.getFieldSize("City");
-    private static final int STATE_SIZE = ConfigReader.getFieldSize("State");
-    // private static final int PINCODE_SIZE = ConfigReader.getFieldSize("Pincode"); // don't really need this
-    private static final int COUNTRY_SIZE = ConfigReader.getFieldSize("Country");
+    private static final ConfigReader conf = new ConfigReader();
+    private static final int NAME_SIZE = conf.getFieldSize("Name");
+    private static final int PHONE_SIZE = conf.getFieldSize("Phone");
+    private static final int STREET_SIZE = conf.getFieldSize("Street");
+    private static final int LOCALITY_SIZE = conf.getFieldSize("Locality");
+    private static final int CITY_SIZE = conf.getFieldSize("City");
+    private static final int STATE_SIZE = conf.getFieldSize("State");
+    private static final int COUNTRY_SIZE = conf.getFieldSize("Country");
 
     // Constructor
     public AddressBook(int id, String name, String phone, String street, String locality, 

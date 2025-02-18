@@ -1,7 +1,5 @@
 package com.csvHandler;
 
-import com.csvHandler.CSVHandler;
-
 public class CSVHandlerTest {
     public static void main(String[] args) {
         CSVHandler csvHandler = new CSVHandler();

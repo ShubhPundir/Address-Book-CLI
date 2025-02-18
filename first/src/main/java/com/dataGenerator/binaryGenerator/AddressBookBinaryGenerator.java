@@ -14,18 +14,18 @@ public class AddressBookBinaryGenerator {
 
     public static void main(String[] args) {
         // Load configuration
-        ConfigReader.loadConfig();
+        ConfigReader conf = new ConfigReader();
 
         // Compute total record size
-        // RECORD_SIZE = ConfigReader.getFieldSize("ID") +
-        //               ConfigReader.getFieldSize("Name") +
-        //               ConfigReader.getFieldSize("Phone") +
-        //               ConfigReader.getFieldSize("Street") +
-        //               ConfigReader.getFieldSize("Locality") +
-        //               ConfigReader.getFieldSize("City") +
-        //               ConfigReader.getFieldSize("State") +
-        //               ConfigReader.getFieldSize("Pincode") +
-        //               ConfigReader.getFieldSize("Country");
+        // RECORD_SIZE = conf.getFieldSize("ID") +
+        //               conf.getFieldSize("Name") +
+        //               conf.getFieldSize("Phone") +
+        //               conf.getFieldSize("Street") +
+        //               conf.getFieldSize("Locality") +
+        //               conf.getFieldSize("City") +
+        //               conf.getFieldSize("State") +
+        //               conf.getFieldSize("Pincode") +
+        //               conf.getFieldSize("Country");
 
         // Define directory and file path
         String directoryPath = System.getProperty("user.dir") + "/data/binary";
@@ -54,19 +54,19 @@ public class AddressBookBinaryGenerator {
                 // Generate fake data
                 for (int j = 0; j < numRecords; j++) {
                     file.writeInt(ID); // Write ID
-                    writeFixedString(file, faker.name().fullName(), ConfigReader.getFieldSize("Name"));
-                    writeFixedString(file, faker.phoneNumber().cellPhone(), ConfigReader.getFieldSize("Phone"));
-                    writeFixedString(file, faker.address().streetAddress(), ConfigReader.getFieldSize("Street"));
-                    writeFixedString(file, faker.address().cityName(), ConfigReader.getFieldSize("Locality"));
-                    writeFixedString(file, faker.address().city(), ConfigReader.getFieldSize("City"));
-                    writeFixedString(file, faker.address().state(), ConfigReader.getFieldSize("State"));
+                    writeFixedString(file, faker.name().fullName(), conf.getFieldSize("Name"));
+                    writeFixedString(file, faker.phoneNumber().cellPhone(), conf.getFieldSize("Phone"));
+                    writeFixedString(file, faker.address().streetAddress(), conf.getFieldSize("Street"));
+                    writeFixedString(file, faker.address().cityName(), conf.getFieldSize("Locality"));
+                    writeFixedString(file, faker.address().city(), conf.getFieldSize("City"));
+                    writeFixedString(file, faker.address().state(), conf.getFieldSize("State"));
                     
                     String pincode = faker.address().zipCode().replaceAll("[^0-9]", ""); // Remove non-numeric chars
                     int parsedPincode = pincode.isEmpty() ? 0 : Integer.parseInt(pincode); // Handle empty case
                     file.writeInt(parsedPincode);
                     // file.writeInt(Integer.parseInt(faker.address().zipCode())); // Write Pincode
                     
-                    writeFixedString(file, "India", ConfigReader.getFieldSize("Country"));
+                    writeFixedString(file, "India", conf.getFieldSize("Country"));
 
                     ++ID; // Increment ID
                 }

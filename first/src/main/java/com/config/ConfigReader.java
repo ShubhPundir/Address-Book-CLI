@@ -11,7 +11,7 @@ public class ConfigReader {
     private static final String CONFIG_FILE = System.getProperty("user.dir") + "/config.xml";
     private static Map<String, Integer> fieldSizes = new HashMap<>();
 
-    public static void loadConfig() {
+    public ConfigReader() {
         try {
             File xmlFile = new File(CONFIG_FILE);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -35,15 +35,15 @@ public class ConfigReader {
         }
     }
 
-    public static int getFieldSize(String fieldName) {
+    public int getFieldSize(String fieldName) {
         return fieldSizes.getOrDefault(fieldName, -1);
     }
 
-    public static int getRecordSize() {
+    public int getRecordSize() {
         int totalSize = 0;
         for (int size : fieldSizes.values()) {
             totalSize += size;
         }
-        return totalSize;
+        return totalSize + 8; // Adding 8 bytes for the two integers (id and pincode)
     }
 }

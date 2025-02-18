@@ -1,14 +1,12 @@
 package com.config;
 
-import com.config.ConfigReader;
-
 public class ConfigReaderTest {
     public static void main(String[] args) {
-        ConfigReader.loadConfig();
+        ConfigReader conf = new ConfigReader();
         
-        System.out.println("ID size: " + ConfigReader.getFieldSize("ID"));
-        System.out.println("Name size: " + ConfigReader.getFieldSize("Name"));
-        System.out.println("Phone size: " + ConfigReader.getFieldSize("Phone"));
-        System.out.println("Total size: " + ConfigReader.getFieldSize("Total"));
+        System.out.println("ID size: " + conf.getFieldSize("ID"));
+        System.out.println("Name size: " + conf.getFieldSize("Name"));
+        System.out.println("Phone size: " + conf.getFieldSize("Phone"));
+        System.out.println("Total size: " + conf.getFieldSize("Total"));
     }
 }
