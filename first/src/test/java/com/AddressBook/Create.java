@@ -1,9 +1,7 @@
 package com.AddressBook;
 import java.io.IOException;
 
-import com.config.ConfigReader;
-
-public class AddressBookStorageTest {
+public class Create {
     public static void main(String[] args) {
         try {
             // Create an instance of AddressBookStorage
