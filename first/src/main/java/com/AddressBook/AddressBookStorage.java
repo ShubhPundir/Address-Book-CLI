@@ -72,6 +72,7 @@ public class AddressBookStorage {
                     AddressBook validRecord = AddressBook.readFromFile(file);
                     validRecord.writeToFile(temp);
                 }
+                System.out.println("Record " + recordIndex + " deleted.");
                 recordIndex++;
             }
         }
