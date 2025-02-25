@@ -1,0 +1,41 @@
+Goals
+
+1. Have to make dynamic changes according to config.xml
+
+Dynamically initialize the datastructure according to config.xml and 
+later on by CLI and visual tools
+
+2. Implement the usage and Storage of Binary Tree onto the file
+
+The Binary Tree file is the only one that runs in the RAM and 
+records would be fetched via O(1) lookup by a seek skip technique --> index * RECORD_SIZE
+
+3. Why hard deleting a record can't directly be done 
+like removing characters in a range of [index, index + RECORD_SIZE]
+
+- Files Are Sequential
+    A file is a continuous stream of bytes on disk.
+    There's no built-in operation to "shift left" the remaining bytes after deleting a part.
+
+- Fixed Size Storage
+    Storage devices work in blocks (e.g., 4KB).
+    Deleting a part of the file doesn’t automatically move the remaining bytes forward.
+
+- No "Gap" Removal in Files
+    If you remove a portion, it just leaves a gap (empty bytes), which still occupies space.
+    There’s no native file operation like "remove bytes and shift data".
+
+🛠 Workarounds
+a. Soft Delete (Marking as Deleted)
+
+    Instead of deleting, mark a record as invalid (e.g., using a special flag).
+    The file size remains the same, but we ignore "deleted" records.
+    Used in databases like SQLite (WAL approach).
+    File Compaction (Rewrite Without Deleted Data)
+
+b. Create a new file and copy only valid records.
+    Replace old file with the new one.
+    Used in log-structured databases like LevelDB, RocksDB.
+
+🔍 Why Not Use RandomAccessFile to Overwrite?
+If you overwrite with zeros or null bytes, the file still retains its size. You need a way to shift data, which isn't natively supported.
