@@ -65,6 +65,10 @@ public class AddressBookStorage {
             while (file.getFilePointer() < file.length()) {
                 long currentPosition = file.getFilePointer();
                 AddressBook record = AddressBook.readFromFile(file);
+                System.out.println(record.toString());
+
+                System.exit(0);
+                System.out.println("THIS SHOULD NOT GET PRINTED");
 
                 // Skip the deleted record, copy all others
                 if (recordIndex != index) {

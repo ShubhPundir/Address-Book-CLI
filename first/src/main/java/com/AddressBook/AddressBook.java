@@ -25,8 +25,8 @@ public class AddressBook {
     private static final int COUNTRY_SIZE = conf.getFieldSize("Country");
 
     // Constructor
-    public AddressBook(int id, String name, String phone, String street, String locality, 
-                         String city, String state, int pincode, String country) {
+    public AddressBook(int id, String name, String phone, String street, String locality,
+            String city, String state, int pincode, String country) {
         this.id = id;
         this.name = padString(name, NAME_SIZE);
         this.phone = padString(phone, PHONE_SIZE);
@@ -79,7 +79,6 @@ public class AddressBook {
 
     @Override
     public String toString() {
-        return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " + 
-               locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
+        return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " + locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
     }
 }
