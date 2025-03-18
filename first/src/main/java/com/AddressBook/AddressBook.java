@@ -2,31 +2,36 @@ package com.AddressBook;
 
 import com.config.ConfigReader;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class AddressBook {
-    private int id;
-    private String name;
-    private String phone;
-    private String street;
-    private String locality;
-    private String city;
-    private String state;
-    private int pincode;
-    private String country;
+    public int id;
+    public String name;
+    public String phone;
+    public String street;
+    public String locality;
+    public String city;
+    public String state;
+    public int pincode;
+    public String country;
 
-    // Load field sizes dynamically from ConfigReader
-    private static final ConfigReader conf = new ConfigReader();
-    private static final int NAME_SIZE = conf.getFieldSize("Name");
-    private static final int PHONE_SIZE = conf.getFieldSize("Phone");
-    private static final int STREET_SIZE = conf.getFieldSize("Street");
-    private static final int LOCALITY_SIZE = conf.getFieldSize("Locality");
-    private static final int CITY_SIZE = conf.getFieldSize("City");
-    private static final int STATE_SIZE = conf.getFieldSize("State");
-    private static final int COUNTRY_SIZE = conf.getFieldSize("Country");
+    public static final ConfigReader conf = new ConfigReader();
+    public static final int NAME_SIZE = conf.getFieldSize("Name");
+    public static final int PHONE_SIZE = conf.getFieldSize("Phone");
+    public static final int STREET_SIZE = conf.getFieldSize("Street");
+    public static final int LOCALITY_SIZE = conf.getFieldSize("Locality");
+    public static final int CITY_SIZE = conf.getFieldSize("City");
+    public static final int STATE_SIZE = conf.getFieldSize("State");
+    public static final int COUNTRY_SIZE = conf.getFieldSize("Country");
 
+<<<<<<< Updated upstream
     // Constructor
     public AddressBook(int id, String name, String phone, String street, String locality,
             String city, String state, int pincode, String country) {
+=======
+    public AddressBook(int id, String name, String phone, String street, String locality,
+                       String city, String state, int pincode, String country) {
+>>>>>>> Stashed changes
         this.id = id;
         this.name = padString(name, NAME_SIZE);
         this.phone = padString(phone, PHONE_SIZE);
@@ -38,25 +43,26 @@ public class AddressBook {
         this.country = padString(country, COUNTRY_SIZE);
     }
 
-    // Padding strings to fixed length
     private String padString(String input, int length) {
-        return String.format("%-" + length + "s", input).substring(0, length);
+        if (input == null) input = "";
+        if (input.length() > length) {
+            return input.substring(0, length);  // Ensure fixed-size
+        }
+        return String.format("%-" + length + "s", input); // Left-align and pad
     }
 
-    // Writing the record to a binary file
     public void writeToFile(RandomAccessFile file) throws IOException {
         file.writeInt(id);
-        file.writeBytes(name);
-        file.writeBytes(phone);
-        file.writeBytes(street);
-        file.writeBytes(locality);
-        file.writeBytes(city);
-        file.writeBytes(state);
+        file.write(name.getBytes(StandardCharsets.UTF_8), 0, NAME_SIZE);
+        file.write(phone.getBytes(StandardCharsets.UTF_8), 0, PHONE_SIZE);
+        file.write(street.getBytes(StandardCharsets.UTF_8), 0, STREET_SIZE);
+        file.write(locality.getBytes(StandardCharsets.UTF_8), 0, LOCALITY_SIZE);
+        file.write(city.getBytes(StandardCharsets.UTF_8), 0, CITY_SIZE);
+        file.write(state.getBytes(StandardCharsets.UTF_8), 0, STATE_SIZE);
         file.writeInt(pincode);
-        file.writeBytes(country);
+        file.write(country.getBytes(StandardCharsets.UTF_8), 0, COUNTRY_SIZE);
     }
 
-    // Reading a record from a binary file
     public static AddressBook readFromFile(RandomAccessFile file) throws IOException {
         int id = file.readInt();
         String name = readFixedString(file, NAME_SIZE);
@@ -74,11 +80,16 @@ public class AddressBook {
     private static String readFixedString(RandomAccessFile file, int length) throws IOException {
         byte[] bytes = new byte[length];
         file.readFully(bytes);
-        return new String(bytes).trim(); // Trim extra spaces
+        return new String(bytes, StandardCharsets.UTF_8).trim();
     }
 
     @Override
     public String toString() {
+<<<<<<< Updated upstream
         return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " + locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
+=======
+        return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " +
+                locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
+>>>>>>> Stashed changes
     }
 }

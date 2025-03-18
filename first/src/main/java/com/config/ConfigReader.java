@@ -8,12 +8,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigReader {
-    private static final String CONFIG_FILE = System.getProperty("user.dir") + "/config.xml";
-    private static Map<String, Integer> fieldSizes = new HashMap<>();
+    private Map<String, Integer> fieldSizes = new HashMap<>();
+
+    public ConfigReader(String filePath) {
+        loadConfig(filePath);
+    }
 
     public ConfigReader() {
+        this(System.getProperty("user.dir") + "/config.xml");
+    }
+
+    private void loadConfig(String filePath) {
         try {
-            File xmlFile = new File(CONFIG_FILE);
+            File xmlFile = new File(filePath);
+            if (!xmlFile.exists()) {
+                throw new RuntimeException("Config file not found: " + filePath);
+            }
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(xmlFile);
@@ -40,14 +50,10 @@ public class ConfigReader {
     }
 
     public int getRecordSize() {
-        int totalSize = 0;
-        for (int size : fieldSizes.values()) {
-            totalSize += size;
-        }
-        return totalSize;
+        return fieldSizes.values().stream().mapToInt(Integer::intValue).sum();
     }
 
-    public Map<String, Integer> getFields(){
+    public Map<String, Integer> getFields() {
         return fieldSizes;
     }
 }

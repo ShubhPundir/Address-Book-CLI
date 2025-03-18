@@ -50,7 +50,7 @@ public class AddressBook {
     public AddressBookRecord searchById(String id) {
         id = id.trim(); // Trim the search ID to avoid leading/trailing spaces
         for (AddressBookRecord record : records) {
-            if (record.id.trim().equals(id)) { // Trim the record ID as well before comparing
+            if (record.getId().trim().equals(id)) { // Trim the record ID as well before comparing
                 return record;
             }
         }
