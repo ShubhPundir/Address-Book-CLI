@@ -24,14 +24,9 @@ public class AddressBook {
     public static final int STATE_SIZE = conf.getFieldSize("State");
     public static final int COUNTRY_SIZE = conf.getFieldSize("Country");
 
-<<<<<<< Updated upstream
     // Constructor
     public AddressBook(int id, String name, String phone, String street, String locality,
             String city, String state, int pincode, String country) {
-=======
-    public AddressBook(int id, String name, String phone, String street, String locality,
-                       String city, String state, int pincode, String country) {
->>>>>>> Stashed changes
         this.id = id;
         this.name = padString(name, NAME_SIZE);
         this.phone = padString(phone, PHONE_SIZE);
@@ -85,11 +80,6 @@ public class AddressBook {
 
     @Override
     public String toString() {
-<<<<<<< Updated upstream
         return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " + locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
-=======
-        return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " +
-                locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
->>>>>>> Stashed changes
     }
 }
