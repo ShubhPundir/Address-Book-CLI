@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-    <field name="username" size="10"/>
-    <field name="password" size="15"/>
-    <field name="email" size="25"/>
-</config>
