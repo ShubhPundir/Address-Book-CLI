@@ -29,6 +29,3 @@ first/logs/
 first/*.log
 first/*.tmp
 first/.DS_Store
-
-# # Data
-# data
