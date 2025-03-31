@@ -11,6 +11,8 @@ public class AddressBookGenerator {
         // Define directory and base file path
         String directoryPath = System.getProperty("user.dir") + "/data";
         String csvBaseFileName = directoryPath + "/address_book";
+        int numRecords = 100000; // Number of records per file
+        int ID = 0; // Start ID from 0
         
         // Create file object for CSV directory
         File csvDir = new File(directoryPath);
@@ -26,9 +28,6 @@ public class AddressBookGenerator {
         // Initialize Faker with Indian locale
         Faker faker = new Faker(new Locale.Builder().setLanguage("en").setRegion("IN").build());
 
-        // Number of records per file
-        int numRecords = 100000;
-        int ID = 0; // Start ID from 0
 
         // Generate 10 CSV files
         for (int i = 0; i < 10; i++) {
