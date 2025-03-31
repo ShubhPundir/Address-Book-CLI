@@ -1,21 +1,21 @@
 package com.Indexing;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-class BPlusTreeNode implements Serializable {
+class BPlusTreeNode {
+    int[] keys;
+    long[] offsets; // File pointer offsets
+    int degree;
+    BPlusTreeNode[] children;
     boolean isLeaf;
-    List<Integer> keys;
-    List<Long> values; // File offsets for leaf nodes
-    List<BPlusTreeNode> children;
-    BPlusTreeNode next; // For leaf node chaining
-    
-    BPlusTreeNode(boolean isLeaf) {
+    int numKeys;
+    BPlusTreeNode next;
+
+    public BPlusTreeNode(int degree, boolean isLeaf) {
+        this.degree = degree;
         this.isLeaf = isLeaf;
-        keys = new ArrayList<>();
-        values = isLeaf ? new ArrayList<>() : null;
-        children = isLeaf ? null : new ArrayList<>();
-        next = null;
+        this.keys = new int[degree];
+        this.offsets = new long[degree]; // Storing offsets
+        this.children = new BPlusTreeNode[degree + 1];
+        this.numKeys = 0;
+        this.next = null;
     }
 }

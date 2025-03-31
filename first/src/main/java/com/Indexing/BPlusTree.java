@@ -1,124 +1,101 @@
 package com.Indexing;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Map;
-
-class BPlusTree implements Serializable {
+import java.util.*;
+class BPlusTree {
     private BPlusTreeNode root;
-    private final int order;
-    
-    public BPlusTree(int order) {
-        this.order = order;
-        this.root = new BPlusTreeNode(true); // Start with a leaf node
+    private int degree;
+
+    public BPlusTree(int degree) {
+        this.degree = degree;
+        this.root = new BPlusTreeNode(degree, true);
     }
-    
+
     public void insert(int key, long offset) {
-        BPlusTreeNode splitNode = insertRecursive(root, key, offset);
-        if (splitNode != null) {
-            // Create a new root if split occurred
-            BPlusTreeNode newRoot = new BPlusTreeNode(false);
-            newRoot.keys.add(splitNode.keys.get(0));
-            newRoot.children.add(root);
-            newRoot.children.add(splitNode);
-            root = newRoot;
+        BPlusTreeNode root = this.root;
+        if (root.numKeys == degree - 1) {
+            BPlusTreeNode newRoot = new BPlusTreeNode(degree, false);
+            newRoot.children[0] = root;
+            splitChild(newRoot, 0, root);
+            this.root = newRoot;
         }
+        insertNonFull(this.root, key, offset);
     }
-    
-    private BPlusTreeNode insertRecursive(BPlusTreeNode node, int key, long offset) {
+
+    private void insertNonFull(BPlusTreeNode node, int key, long offset) {
+        int i = node.numKeys - 1;
         if (node.isLeaf) {
-            int pos = Collections.binarySearch(node.keys, key);
-            if (pos < 0) pos = -(pos + 1);
-            node.keys.add(pos, key);
-            node.values.add(pos, offset);
-            if (node.keys.size() < order) return null;
-            return splitLeaf(node);
-        }
-        
-        int pos = Collections.binarySearch(node.keys, key);
-        if (pos < 0) pos = -(pos + 1);
-        BPlusTreeNode splitNode = insertRecursive(node.children.get(pos), key, offset);
-        
-        if (splitNode != null) {
-            node.keys.add(pos, splitNode.keys.get(0));
-            node.children.add(pos + 1, splitNode);
-            if (node.keys.size() < order) return null;
-            return splitInternal(node);
-        }
-        return null;
-    }
-    
-    private BPlusTreeNode splitLeaf(BPlusTreeNode node) {
-        int mid = node.keys.size() / 2;
-        BPlusTreeNode newLeaf = new BPlusTreeNode(true);
-        newLeaf.keys.addAll(node.keys.subList(mid, node.keys.size()));
-        newLeaf.values.addAll(node.values.subList(mid, node.values.size()));
-        node.keys.subList(mid, node.keys.size()).clear();
-        node.values.subList(mid, node.values.size()).clear();
-        newLeaf.next = node.next;
-        node.next = newLeaf;
-        return newLeaf;
-    }
-    
-    private BPlusTreeNode splitInternal(BPlusTreeNode node) {
-        int mid = node.keys.size() / 2;
-        BPlusTreeNode newInternal = new BPlusTreeNode(false);
-        newInternal.keys.addAll(node.keys.subList(mid + 1, node.keys.size()));
-        newInternal.children.addAll(node.children.subList(mid + 1, node.children.size()));
-        node.keys.subList(mid, node.keys.size()).clear();
-        node.children.subList(mid + 1, node.children.size()).clear();
-        return newInternal;
-    }
-    
-    public Long search(int key) {
-        BPlusTreeNode node = root;
-        while (!node.isLeaf) {
-            int pos = Collections.binarySearch(node.keys, key);
-            if (pos < 0) pos = -(pos + 1);
-            node = node.children.get(pos);
-        }
-        int pos = Collections.binarySearch(node.keys, key);
-        return (pos >= 0) ? node.values.get(pos) : null;
-    }
-    
-    public void delete(int key) {
-        deleteRecursive(root, key);
-    }
-    
-    private void deleteRecursive(BPlusTreeNode node, int key) {
-        if (node.isLeaf) {
-            int pos = Collections.binarySearch(node.keys, key);
-            if (pos >= 0) {
-                node.keys.remove(pos);
-                node.values.remove(pos);
+            while (i >= 0 && key < node.keys[i]) {
+                node.keys[i + 1] = node.keys[i];
+                node.offsets[i + 1] = node.offsets[i];
+                i--;
             }
-            return;
-        }
-        int pos = Collections.binarySearch(node.keys, key);
-        if (pos < 0) pos = -(pos + 1);
-        deleteRecursive(node.children.get(pos), key);
-    }
-    
-    public void saveToFile(String filename) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            oos.writeObject(this);
-        }
-    }
-    
-    public static BPlusTree loadFromFile(String filename) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            return (BPlusTree) ois.readObject();
+            node.keys[i + 1] = key;
+            node.offsets[i + 1] = offset;
+            node.numKeys++;
+        } else {
+            while (i >= 0 && key < node.keys[i]) i--;
+            i++;
+            if (node.children[i].numKeys == degree - 1) {
+                splitChild(node, i, node.children[i]);
+                if (key > node.keys[i]) i++;
+            }
+            insertNonFull(node.children[i], key, offset);
         }
     }
-    
-    public void bulkInsert(Map<Integer, Long> records) {
-        for (Map.Entry<Integer, Long> entry : records.entrySet()) {
-            insert(entry.getKey(), entry.getValue());
+
+    private void splitChild(BPlusTreeNode parent, int i, BPlusTreeNode child) {
+        int mid = degree / 2;
+        BPlusTreeNode newNode = new BPlusTreeNode(degree, child.isLeaf);
+        parent.children[i + 1] = newNode;
+        newNode.numKeys = child.numKeys - mid - 1;
+
+        for (int j = 0; j < newNode.numKeys; j++) {
+            newNode.keys[j] = child.keys[mid + 1 + j];
+            newNode.offsets[j] = child.offsets[mid + 1 + j];
+        }
+
+        if (!child.isLeaf) {
+            for (int j = 0; j <= newNode.numKeys; j++) {
+                newNode.children[j] = child.children[mid + 1 + j];
+            }
+        }
+        child.numKeys = mid;
+        for (int j = parent.numKeys; j > i; j--) {
+            parent.children[j + 1] = parent.children[j];
+            parent.keys[j] = parent.keys[j - 1];
+        }
+        parent.keys[i] = child.keys[mid];
+        parent.offsets[i] = child.offsets[mid];
+        parent.numKeys++;
+        if (child.isLeaf) {
+            newNode.next = child.next;
+            child.next = newNode;
+        }
+    }
+
+    public Long search(int key) {
+        return search(this.root, key);
+    }
+
+    private Long search(BPlusTreeNode node, int key) {
+        int i = 0;
+        while (i < node.numKeys && key > node.keys[i]) i++;
+        if (i < node.numKeys && key == node.keys[i]) return node.offsets[i];
+        if (node.isLeaf) return null;
+        return search(node.children[i], key);
+    }
+
+    public void printTree() {
+        Queue<BPlusTreeNode> queue = new LinkedList<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            BPlusTreeNode node = queue.poll();
+            System.out.println(Arrays.toString(Arrays.copyOf(node.keys, node.numKeys)));
+            if (!node.isLeaf) {
+                for (int i = 0; i <= node.numKeys; i++) {
+                    queue.add(node.children[i]);
+                }
+            }
         }
     }
 }
