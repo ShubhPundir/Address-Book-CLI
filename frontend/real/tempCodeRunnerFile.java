@@ -1,4 +1,4 @@
-import javax.swing.*; 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -104,22 +104,18 @@ public class AddressBookGUI extends JFrame {
         JButton addButton = new JButton("Add");
         JButton editButton = new JButton("Edit");
         JButton deleteButton = new JButton("Delete");
-        JButton clearButton = new JButton("Clear Fields");  // New clear button
 
         addButton.setBackground(new Color(72, 209, 204));
         editButton.setBackground(new Color(255, 165, 0));
         deleteButton.setBackground(new Color(255, 69, 0));
-        clearButton.setBackground(new Color(192, 192, 192)); // Light grey for clear button
 
         addButton.addActionListener(e -> addContact());
         editButton.addActionListener(e -> editContact());
         deleteButton.addActionListener(e -> deleteContact());
-        clearButton.addActionListener(e -> clearFields());  // Clear button action
 
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
-        buttonPanel.add(clearButton);  // Add clear button to panel
 
         gbc.gridx = 0;
         gbc.gridy = 3;
