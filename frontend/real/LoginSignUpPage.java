@@ -86,15 +86,26 @@ public class LoginSignUpPage extends JFrame {
     private void handleLogin() {
         String username = loginUsernameField.getText();
         String password = new String(loginPasswordField.getPassword());
-
+    
         if (username.equals("user") && password.equals("pwd")) {
             JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Run AddressBookGUI on the Event Dispatch Thread
+            SwingUtilities.invokeLater(() -> {
+                AddressBookGUI addressBook = new AddressBookGUI();
+                addressBook.setVisible(true);
+            });
+    
+            // Ensure Login Window Closes
+            this.setVisible(false); 
+            this.dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Invalid Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginSignUpPage().setVisible(true));
     }
-}
+} 

@@ -1,8 +1,10 @@
-import javax.swing.*; 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+// Contact class to store individual contacts
 class Contact {
     String name, phone, address;
 
@@ -17,7 +19,8 @@ class Contact {
     }
 }
 
-public class AddressBookGUI extends JFrame {
+// Address Book GUI
+class AddressBookGUI extends JFrame {
     private JTextField nameField, phoneField, addressField;
     private JList<Contact> contactList;
     private DefaultListModel<Contact> contactModel;
@@ -69,7 +72,6 @@ public class AddressBookGUI extends JFrame {
         contactList.addListSelectionListener(e -> showContactDetails(contactList.getSelectedValue()));
 
         contactListPanel.add(new JScrollPane(contactList), BorderLayout.CENTER);
-
         mainPanel.add(contactListPanel);
 
         // Contact Details Panel
@@ -104,22 +106,22 @@ public class AddressBookGUI extends JFrame {
         JButton addButton = new JButton("Add");
         JButton editButton = new JButton("Edit");
         JButton deleteButton = new JButton("Delete");
-        JButton clearButton = new JButton("Clear Fields");  // New clear button
+        JButton clearButton = new JButton("Clear Fields");
 
         addButton.setBackground(new Color(72, 209, 204));
         editButton.setBackground(new Color(255, 165, 0));
         deleteButton.setBackground(new Color(255, 69, 0));
-        clearButton.setBackground(new Color(192, 192, 192)); // Light grey for clear button
+        clearButton.setBackground(new Color(192, 192, 192));
 
         addButton.addActionListener(e -> addContact());
         editButton.addActionListener(e -> editContact());
         deleteButton.addActionListener(e -> deleteContact());
-        clearButton.addActionListener(e -> clearFields());  // Clear button action
+        clearButton.addActionListener(e -> clearFields());
 
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
-        buttonPanel.add(clearButton);  // Add clear button to panel
+        buttonPanel.add(clearButton);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -127,7 +129,6 @@ public class AddressBookGUI extends JFrame {
         detailsPanel.add(buttonPanel, gbc);
 
         mainPanel.add(detailsPanel);
-
         add(mainPanel, BorderLayout.CENTER);
     }
 
@@ -189,8 +190,77 @@ public class AddressBookGUI extends JFrame {
         phoneField.setText("");
         addressField.setText("");
     }
+}
+
+// Login GUI
+public class LoginSignUpPage extends JFrame {
+    private JTextField loginUsernameField;
+    private JPasswordField loginPasswordField;
+
+    public LoginSignUpPage() {
+        setTitle("Login & Sign Up");
+        setSize(450, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel loginTitle = new JLabel("Login");
+        loginTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        add(loginTitle, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        add(new JLabel("Username:"), gbc);
+
+        gbc.gridx = 1;
+        loginUsernameField = new JTextField(15);
+        add(loginUsernameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        add(new JLabel("Password:"), gbc);
+
+        gbc.gridx = 1;
+        loginPasswordField = new JPasswordField(15);
+        add(loginPasswordField, gbc);
+
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(e -> handleLogin());
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        add(loginButton, gbc);
+    }
+
+    private void handleLogin() {
+        String username = loginUsernameField.getText();
+        String password = new String(loginPasswordField.getPassword());
+    
+        if (username.equals("user") && password.equals("pwd")) {
+            JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Run AddressBookGUI on the Event Dispatch Thread
+            SwingUtilities.invokeLater(() -> {
+                AddressBookGUI addressBook = new AddressBookGUI();
+                addressBook.setVisible(true);
+            });
+    
+            // Ensure Login Window Closes
+            this.setVisible(false); 
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AddressBookGUI().setVisible(true));
+        SwingUtilities.invokeLater(() -> new LoginSignUpPage().setVisible(true));
     }
 }
