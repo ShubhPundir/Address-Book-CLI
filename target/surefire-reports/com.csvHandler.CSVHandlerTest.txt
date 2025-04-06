@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: com.csvHandler.CSVHandlerTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.018 s <<< FAILURE! - in com.csvHandler.CSVHandlerTest
+testReadExistingCSV(com.csvHandler.CSVHandlerTest)  Time elapsed: 0.004 s  <<< FAILURE!
+java.lang.AssertionError: File should exist at the specified path
+	at com.csvHandler.CSVHandlerTest.testReadExistingCSV(CSVHandlerTest.java:31)
+

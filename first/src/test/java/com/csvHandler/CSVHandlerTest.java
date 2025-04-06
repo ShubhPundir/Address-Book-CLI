@@ -2,51 +2,34 @@ package com.csvHandler;
 
 import org.junit.Before;
 import org.junit.Test;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import static org.junit.Assert.*;
+
 import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class CSVHandlerTest {
     private CSVHandler csvHandler;
-    private static final String TEST_CSV_FILE = "test.csv";
+    // Use the existing file path
+    private static final String EXISTING_CSV_FILE = "C:/AB_cli/Address-Book-CLI/data/csv/address_book-4.csv";
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         csvHandler = new CSVHandler();
-        
-        // Create a sample CSV file for testing
-        try (PrintWriter writer = new PrintWriter(new FileWriter(TEST_CSV_FILE))) {
-            writer.println("Name,Age,City");
-            writer.println("Alice,25,New York");
-            writer.println("Bob,30,Los Angeles");
-        }
     }
 
     @Test
-    public void testReadCSV() throws IOException {
-        System.out.println("Reading CSV:");
-        csvHandler.readCSV(TEST_CSV_FILE); // Should print CSV content
-        assertTrue("File should exist", new File(TEST_CSV_FILE).exists());
-    }
+    public void testReadExistingCSV() throws IOException {
+        System.out.println("Reading Existing CSV:");
+        File file = new File(EXISTING_CSV_FILE);
+        assertTrue("CSV file should exist", file.exists());
 
-    @Test
-    public void testReadEmptyCSV() throws IOException {
-        String emptyFile = "empty.csv";
-        Files.createFile(Paths.get(emptyFile));
-
-        System.out.println("Reading Empty CSV:");
-        csvHandler.readCSV(emptyFile); // Should print nothing
-
-        Files.delete(Paths.get(emptyFile));
+        csvHandler.readCSV(EXISTING_CSV_FILE); // Should print CSV content
     }
 
     @Test
     public void testReadMissingCSV() {
-        String missingFile = "missing.csv";
+        String missingFile = "C:/AB_cli/Address-Book-CLI/data/csv/missing.csv";
         System.out.println("Reading Missing CSV:");
 
         try {

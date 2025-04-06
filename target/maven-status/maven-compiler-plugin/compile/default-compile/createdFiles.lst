@@ -1,0 +1,14 @@
+com\csvHandler\CSVHandler.class
+com\dataGenerator\csvGenerator\FakerExample.class
+com\frontend\real\AddressBookGUI.class
+com\bptree\Node.class
+com\frontend\real\Contact.class
+com\bptree\BPlusTree.class
+com\AddressBook\AddressBookStorage.class
+com\config\ConfigReader.class
+com\dataGenerator\binaryGenerator\AddressBookBinaryGenerator.class
+com\Indexing\BPlusTreeNode.class
+com\Indexing\BPlusTree.class
+com\AddressBook\AddressBook.class
+com\dataGenerator\csvGenerator\AddressBookGenerator.class
+com\bptree\BPlusTreeTest.class

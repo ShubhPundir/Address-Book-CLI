@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: com.AddressBook.AddressBookStorageTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 0.116 s <<< FAILURE! - in com.AddressBook.AddressBookStorageTest
+testUpdateRecord(com.AddressBook.AddressBookStorageTest)  Time elapsed: 0.024 s  <<< FAILURE!
+java.lang.AssertionError: Test file should exist and be accessible
+	at com.AddressBook.AddressBookStorageTest.setUp(AddressBookStorageTest.java:21)
+
+testDeleteRecord(com.AddressBook.AddressBookStorageTest)  Time elapsed: 0 s  <<< FAILURE!
+java.lang.AssertionError: Test file should exist and be accessible
+	at com.AddressBook.AddressBookStorageTest.setUp(AddressBookStorageTest.java:21)
+
+testAddAndGetRecord(com.AddressBook.AddressBookStorageTest)  Time elapsed: 0 s  <<< FAILURE!
+java.lang.AssertionError: Test file should exist and be accessible
+	at com.AddressBook.AddressBookStorageTest.setUp(AddressBookStorageTest.java:21)
+

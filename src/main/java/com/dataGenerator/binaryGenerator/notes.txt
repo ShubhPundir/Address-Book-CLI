@@ -1,0 +1,12 @@
+Shubh
+method: String padString(String input, String length) ALTERNATIVES
+    Alternative Approach: Store Length Separately, so far we have used a padString method in com.binaryGenerator.AddressRecord.java
+    Instead of fixed-length strings, we could store:
+
+    An integer for length (e.g., 4 bytes).
+        The actual string.
+        But this makes seeking records harder, since each record might be of a different size.
+hbuhS
+
+Any thoughts?
+

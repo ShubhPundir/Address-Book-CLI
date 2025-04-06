@@ -1,0 +1,8 @@
+com\config\ConfigReaderTest.class
+com\AddressBook\AddressBookTest.class
+com\AddressBook\Create.class
+com\AddressBook\AddressBookStorageValidationTest.class
+com\AddressBook\GET.class
+com\AddressBook\AddressBookStorageTest.class
+com\csvHandler\CSVHandlerTest.class
+com\config\retriever.class

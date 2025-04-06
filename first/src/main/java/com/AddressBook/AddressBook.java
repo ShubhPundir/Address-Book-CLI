@@ -15,18 +15,37 @@ public class AddressBook {
     public int pincode;
     public String country;
 
-    public static final ConfigReader conf = new ConfigReader();
-    public static final int NAME_SIZE = conf.getFieldSize("Name");
-    public static final int PHONE_SIZE = conf.getFieldSize("Phone");
-    public static final int STREET_SIZE = conf.getFieldSize("Street");
-    public static final int LOCALITY_SIZE = conf.getFieldSize("Locality");
-    public static final int CITY_SIZE = conf.getFieldSize("City");
-    public static final int STATE_SIZE = conf.getFieldSize("State");
-    public static final int COUNTRY_SIZE = conf.getFieldSize("Country");
+    private static ConfigReader conf;
+
+    // Field sizes with defaults
+    public static int NAME_SIZE = 20;
+    public static final int PHONE_SIZE = 15;
+    public static int STREET_SIZE = 30;
+    public static final int LOCALITY_SIZE = 20;
+    public static final int CITY_SIZE = 20;
+    public static final int STATE_SIZE = 20;
+    public static final int COUNTRY_SIZE = 20;
+
+    static {
+        try {
+            initializeConfig();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private static void initializeConfig() throws IOException {
+        conf = new ConfigReader();
+        NAME_SIZE = conf.getFieldSize("Name");
+        STREET_SIZE = conf.getFieldSize("Street");
+        // Add other fields if needed
+        System.out.println("Config loaded successfully.");
+    }
 
     // Constructor
     public AddressBook(int id, String name, String phone, String street, String locality,
-            String city, String state, int pincode, String country) {
+                       String city, String state, int pincode, String country) {
         this.id = id;
         this.name = padString(name, NAME_SIZE);
         this.phone = padString(phone, PHONE_SIZE);
@@ -38,12 +57,13 @@ public class AddressBook {
         this.country = padString(country, COUNTRY_SIZE);
     }
 
-    private String padString(String input, int length) {
+    String padString(String input, int length) {
         if (input == null) input = "";
+        if (length <= 0) throw new IllegalArgumentException("Invalid length: " + length);
         if (input.length() > length) {
-            return input.substring(0, length);  // Ensure fixed-size
+            return input.substring(0, length);
         }
-        return String.format("%-" + length + "s", input); // Left-align and pad
+        return String.format("%-" + length + "s", input);
     }
 
     public void writeToFile(RandomAccessFile file) throws IOException {
@@ -82,4 +102,18 @@ public class AddressBook {
     public String toString() {
         return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " + locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
     }
+
+    public static int getRecordSize() {
+        return Integer.BYTES * 2 + NAME_SIZE + PHONE_SIZE + STREET_SIZE + LOCALITY_SIZE + CITY_SIZE + STATE_SIZE + COUNTRY_SIZE;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name.trim(); }
+    public String getStreet() { return street.trim(); }
+    public String getPhone() { return phone.trim(); }
+    public String getLocality() { return locality.trim(); }
+    public String getCity() { return city.trim(); }
+    public int getPincode() { return pincode; }
+    public String getState() { return state.trim(); }
+    public String getCountry() { return country.trim(); }
 }

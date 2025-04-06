@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <field name="ID" size="20" dtype="int"/>
+    <field name="Name" size="50" dtype="String"/>
+    <field name="Phone" size="30" dtype="String"/>
+    <field name="Street" size="50" dtype="String"/>
+    <field name="Locality" size="30" dtype="String"/>
+    <field name="City" size="30" dtype="String"/>
+    <field name="State" size="30" dtype="String"/>
+    <field name="Pincode" size="4" dtype="int"/>
+    <field name="Country" size="20" dtype="String"/>
+</config>

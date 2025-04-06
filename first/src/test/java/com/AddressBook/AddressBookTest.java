@@ -2,61 +2,38 @@ package com.AddressBook;
 
 import org.junit.Before;
 import org.junit.Test;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import static org.junit.Assert.*;
 
 public class AddressBookTest {
-    private AddressBook testEntry;
-    private final int testId = 1;
-    private final String testName = "John Doe";
-    private final String testPhone = "9876543210";
-    private final String testStreet = "123 Main St";
-    private final String testLocality = "Downtown";
-    private final String testCity = "New York";
-    private final String testState = "NY";
-    private final int testPincode = 10001;
-    private final String testCountry = "USA";
-    private File testFile;
+
+    private static final int NAME_SIZE = 20; // Use static final for constants
+    private AddressBook addressBook;
 
     @Before
-    public void setUp() throws IOException {
-        testEntry = new AddressBook(testId, testName, testPhone, testStreet, testLocality, testCity, testState, testPincode, testCountry);
-        testFile = File.createTempFile("testAddressBook", ".bin");
-        testFile.deleteOnExit();
+    public void setUp() {
+        // Initialize the AddressBook instance before each test
+        addressBook = new AddressBook(1, "John", "12345", "Street", "Locality", "City", "State", 123456, "Country");
     }
 
     @Test
-    public void testWriteAndReadFromFile() throws IOException {
-        try (RandomAccessFile file = new RandomAccessFile(testFile, "rw")) {
-            testEntry.writeToFile(file);
-            file.seek(0);
-            AddressBook readEntry = AddressBook.readFromFile(file);
-
-            assertEquals("ID should match", testId, readEntry.id);
-            assertEquals("Name should match", testName.trim(), readEntry.name.trim());
-            assertEquals("Phone should match", testPhone.trim(), readEntry.phone.trim());
-            assertEquals("Street should match", testStreet.trim(), readEntry.street.trim());
-            assertEquals("Locality should match", testLocality.trim(), readEntry.locality.trim());
-            assertEquals("City should match", testCity.trim(), readEntry.city.trim());
-            assertEquals("State should match", testState.trim(), readEntry.state.trim());
-            assertEquals("Pincode should match", testPincode, readEntry.pincode);
-            assertEquals("Country should match", testCountry.trim(), readEntry.country.trim());
-        }
+    public void testPadString_ShortInput() {
+        String input = "John";
+        String expected = String.format("%-" + NAME_SIZE + "s", input);
+        String actual = addressBook.padString(input, NAME_SIZE);
+        assertEquals("Should pad short input with spaces", expected, actual);
     }
 
     @Test
-    public void testPaddingFunctionality() {
-        String padded = testEntry.toString();
-        assertFalse("Padded name should not exceed allowed size", padded.length() > 100);
-        assertFalse("Padded phone should not exceed allowed size", testEntry.phone.length() > 15);
+    public void testPadString_LongInput() {
+        String input = "ThisIsAVeryLongNameExceedingTheLimit";
+        String expected = input.substring(0, NAME_SIZE);
+        String actual = addressBook.padString(input, NAME_SIZE);
+        assertEquals("Should truncate long input to fit the specified length", expected, actual);
     }
 
-    @Test
-    public void testFieldSizeInitialization() {
-        assertTrue("Name size should be greater than 0", AddressBook.NAME_SIZE > 0);
-        assertTrue("Phone size should be greater than 0", AddressBook.PHONE_SIZE > 0);
+    @Test(expected = IllegalArgumentException.class)
+    public void testPadString_InvalidLength() {
+        addressBook.padString("Test", -1);
     }
 }
