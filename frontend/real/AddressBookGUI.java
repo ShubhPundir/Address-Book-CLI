@@ -1,137 +1,193 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
 
-// Contact class to store individual contacts
-class Contact {
-    String name, phone, address;
-
-    Contact(String name, String phone, String address) {
-        this.name = name;
-        this.phone = phone;
-        this.address = address;
-    }
-
-    public String toString() {
-        return name;
-    }
-}
-
-// Address Book GUI
-class AddressBookGUI extends JFrame {
-    private JTextField nameField, phoneField, addressField;
+public class AddressBookGUI extends JFrame {
+    private JTextField idField, nameField, phoneField, streetField, localityField;
+    private JTextField cityField, stateField, pincodeField, countryField;
     private JList<Contact> contactList;
     private DefaultListModel<Contact> contactModel;
     private ArrayList<Contact> contacts;
+    private CSVHandler csvHandler;
+    private String csvDirectory = "data/csv/";
 
     public AddressBookGUI() {
         setTitle("Address Book");
-        setSize(900, 700);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
+        csvHandler = new CSVHandler();
         contacts = new ArrayList<>();
         contactModel = new DefaultListModel<>();
 
-        // Sidebar
+        // Initialize UI components
+        initSidebar();
+        initMainPanel();
+        
+        // Load contacts from CSV
+        loadAllCSVContacts();
+    }
+
+    private void initSidebar() {
         JPanel sidebar = new JPanel(new GridLayout(5, 1));
         sidebar.setBackground(new Color(85, 37, 130));
 
         JLabel titleLabel = new JLabel("📒 Address Book");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setHorizontalAlignment(JLabel.CENTER);
         sidebar.add(titleLabel);
 
-        JButton homeButton = createSidebarButton("➤ Home");
-        JButton addContactButton = createSidebarButton("➤ Add Contact");
-        JButton searchButton = createSidebarButton("➤ Search");
-        JButton settingsButton = createSidebarButton("➤ Settings");
-
-        sidebar.add(homeButton);
-        sidebar.add(addContactButton);
-        sidebar.add(searchButton);
-        sidebar.add(settingsButton);
+        sidebar.add(createSidebarButton("➤ Home"));
+        sidebar.add(createSidebarButton("➤ Add Contact"));
+        sidebar.add(createSidebarButton("➤ Search"));
+        sidebar.add(createSidebarButton("➤ Settings"));
 
         add(sidebar, BorderLayout.WEST);
+    }
 
-        // Main Content Panel
+    private void initMainPanel() {
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
 
         // Contact List Panel
         JPanel contactListPanel = new JPanel(new BorderLayout());
         contactListPanel.setBorder(BorderFactory.createTitledBorder("Contacts"));
 
-        JTextField searchContacts = new JTextField("🔍 Search Contacts");
-        contactListPanel.add(searchContacts, BorderLayout.NORTH);
+        JTextField searchField = new JTextField("🔍 Search Contacts");
+        contactListPanel.add(searchField, BorderLayout.NORTH);
 
         contactList = new JList<>(contactModel);
         contactList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         contactList.addListSelectionListener(e -> showContactDetails(contactList.getSelectedValue()));
-
         contactListPanel.add(new JScrollPane(contactList), BorderLayout.CENTER);
-        mainPanel.add(contactListPanel);
 
         // Contact Details Panel
-        JPanel detailsPanel = new JPanel(new GridBagLayout());
+        JPanel detailsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Contact Details"));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        addFormField(detailsPanel, "ID:", idField = new JTextField());
+        addFormField(detailsPanel, "Name:", nameField = new JTextField());
+        addFormField(detailsPanel, "Phone:", phoneField = new JTextField());
+        addFormField(detailsPanel, "Street:", streetField = new JTextField());
+        addFormField(detailsPanel, "Locality:", localityField = new JTextField());
+        addFormField(detailsPanel, "City:", cityField = new JTextField());
+        addFormField(detailsPanel, "State:", stateField = new JTextField());
+        addFormField(detailsPanel, "Pincode:", pincodeField = new JTextField());
+        addFormField(detailsPanel, "Country:", countryField = new JTextField());
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        detailsPanel.add(new JLabel("📛 Name:"), gbc);
-        gbc.gridx = 1;
-        nameField = new JTextField(15);
-        detailsPanel.add(nameField, gbc);
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(createActionButton("Add", Color.GREEN, e -> addContact()));
+        buttonPanel.add(createActionButton("Update", Color.ORANGE, e -> updateContact()));
+        buttonPanel.add(createActionButton("Delete", Color.RED, e -> deleteContact()));
+        buttonPanel.add(createActionButton("Clear", Color.GRAY, e -> clearFields()));
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        detailsPanel.add(new JLabel("📞 Phone:"), gbc);
-        gbc.gridx = 1;
-        phoneField = new JTextField(15);
-        detailsPanel.add(phoneField, gbc);
+        detailsPanel.add(buttonPanel);
+        detailsPanel.add(new JLabel()); // Empty cell for layout
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        detailsPanel.add(new JLabel("🏠 Address:"), gbc);
-        gbc.gridx = 1;
-        addressField = new JTextField(15);
-        detailsPanel.add(addressField, gbc);
-
-        JPanel buttonPanel = new JPanel();
-        JButton addButton = new JButton("Add");
-        JButton editButton = new JButton("Edit");
-        JButton deleteButton = new JButton("Delete");
-        JButton clearButton = new JButton("Clear Fields");
-
-        addButton.setBackground(new Color(72, 209, 204));
-        editButton.setBackground(new Color(255, 165, 0));
-        deleteButton.setBackground(new Color(255, 69, 0));
-        clearButton.setBackground(new Color(192, 192, 192));
-
-        addButton.addActionListener(e -> addContact());
-        editButton.addActionListener(e -> editContact());
-        deleteButton.addActionListener(e -> deleteContact());
-        clearButton.addActionListener(e -> clearFields());
-
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(clearButton);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        detailsPanel.add(buttonPanel, gbc);
-
-        mainPanel.add(detailsPanel);
+        mainPanel.add(contactListPanel);
+        mainPanel.add(new JScrollPane(detailsPanel));
         add(mainPanel, BorderLayout.CENTER);
     }
 
+    private void loadAllCSVContacts() {
+        File dir = new File(csvDirectory);
+        File[] csvFiles = dir.listFiles((d, name) -> name.matches("address_book-\\d+\\.csv"));
+        
+        if (csvFiles != null) {
+            for (File csvFile : csvFiles) {
+                try {
+                    List<Contact> fileContacts = csvHandler.readCSV(csvFile.getPath());
+                    fileContacts.forEach(contact -> {
+                        contacts.add(contact);
+                        contactModel.addElement(contact);
+                    });
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Error loading: " + csvFile.getName(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private void showContactDetails(Contact contact) {
+        if (contact != null) {
+            idField.setText(contact.id);
+            nameField.setText(contact.name);
+            phoneField.setText(contact.phone);
+            streetField.setText(contact.street);
+            localityField.setText(contact.locality);
+            cityField.setText(contact.city);
+            stateField.setText(contact.state);
+            pincodeField.setText(contact.pincode);
+            countryField.setText(contact.country);
+        }
+    }
+
+    private void addContact() {
+        Contact newContact = createContactFromFields();
+        if (newContact != null) {
+            contacts.add(newContact);
+            contactModel.addElement(newContact);
+            clearFields();
+        }
+    }
+
+    private void updateContact() {
+        int index = contactList.getSelectedIndex();
+        if (index >= 0) {
+            Contact updated = createContactFromFields();
+            if (updated != null) {
+                contacts.set(index, updated);
+                contactModel.set(index, updated);
+            }
+        }
+    }
+
+    private void deleteContact() {
+        int index = contactList.getSelectedIndex();
+        if (index >= 0) {
+            contacts.remove(index);
+            contactModel.remove(index);
+            clearFields();
+        }
+    }
+
+    private Contact createContactFromFields() {
+        if (nameField.getText().isEmpty() || phoneField.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Name and Phone are required");
+            return null;
+        }
+        return new Contact(
+            idField.getText(),
+            nameField.getText(),
+            phoneField.getText(),
+            streetField.getText(),
+            localityField.getText(),
+            cityField.getText(),
+            stateField.getText(),
+            pincodeField.getText(),
+            countryField.getText()
+        );
+    }
+
+    private void clearFields() {
+        idField.setText("");
+        nameField.setText("");
+        phoneField.setText("");
+        streetField.setText("");
+        localityField.setText("");
+        cityField.setText("");
+        stateField.setText("");
+        pincodeField.setText("");
+        countryField.setText("");
+    }
+
+    // Helper methods for UI creation
     private JButton createSidebarButton(String text) {
         JButton button = new JButton(text);
         button.setBackground(new Color(85, 37, 130));
@@ -142,123 +198,18 @@ class AddressBookGUI extends JFrame {
         return button;
     }
 
-    private void addContact() {
-        String name = nameField.getText();
-        String phone = phoneField.getText();
-        String address = addressField.getText();
-
-        if (!name.isEmpty() && !phone.isEmpty()) {
-            Contact newContact = new Contact(name, phone, address);
-            contacts.add(newContact);
-            contactModel.addElement(newContact);
-            clearFields();
-        } else {
-            JOptionPane.showMessageDialog(this, "Name and Phone are required.");
-        }
+    private JButton createActionButton(String text, Color bg, ActionListener action) {
+        JButton button = new JButton(text);
+        button.setBackground(bg);
+        button.setForeground(Color.WHITE);
+        button.addActionListener(action);
+        return button;
     }
 
-    private void editContact() {
-        int index = contactList.getSelectedIndex();
-        if (index != -1) {
-            Contact selected = contactModel.get(index);
-            selected.name = nameField.getText();
-            selected.phone = phoneField.getText();
-            selected.address = addressField.getText();
-            contactList.repaint();
-        }
+    private void addFormField(JPanel panel, String label, JTextField field) {
+        panel.add(new JLabel(label));
+        panel.add(field);
     }
-
-    private void deleteContact() {
-        int index = contactList.getSelectedIndex();
-        if (index != -1) {
-            contacts.remove(index);
-            contactModel.remove(index);
-            clearFields();
-        }
-    }
-
-    private void showContactDetails(Contact contact) {
-        if (contact != null) {
-            nameField.setText(contact.name);
-            phoneField.setText(contact.phone);
-            addressField.setText(contact.address);
-        }
-    }
-
-    private void clearFields() {
-        nameField.setText("");
-        phoneField.setText("");
-        addressField.setText("");
-    }
-}
-
-// Login GUI
-public class LoginSignUpPage extends JFrame {
-    private JTextField loginUsernameField;
-    private JPasswordField loginPasswordField;
-
-    public LoginSignUpPage() {
-        setTitle("Login & Sign Up");
-        setSize(450, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        JLabel loginTitle = new JLabel("Login");
-        loginTitle.setFont(new Font("Arial", Font.BOLD, 24));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        add(loginTitle, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        add(new JLabel("Username:"), gbc);
-
-        gbc.gridx = 1;
-        loginUsernameField = new JTextField(15);
-        add(loginUsernameField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        add(new JLabel("Password:"), gbc);
-
-        gbc.gridx = 1;
-        loginPasswordField = new JPasswordField(15);
-        add(loginPasswordField, gbc);
-
-        JButton loginButton = new JButton("Login");
-        loginButton.addActionListener(e -> handleLogin());
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        add(loginButton, gbc);
-    }
-
-    private void handleLogin() {
-        String username = loginUsernameField.getText();
-        String password = new String(loginPasswordField.getPassword());
-    
-        if (username.equals("user") && password.equals("pwd")) {
-            JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            
-            // Run AddressBookGUI on the Event Dispatch Thread
-            SwingUtilities.invokeLater(() -> {
-                AddressBookGUI addressBook = new AddressBookGUI();
-                addressBook.setVisible(true);
-            });
-    
-            // Ensure Login Window Closes
-            this.setVisible(false); 
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginSignUpPage().setVisible(true));
