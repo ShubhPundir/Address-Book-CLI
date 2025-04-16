@@ -1,6 +1,7 @@
 package com.Indexing;
 
 import java.util.*;
+
 class BPlusTree {
     private BPlusTreeNode root;
     private int degree;
@@ -44,29 +45,32 @@ class BPlusTree {
     }
 
     private void splitChild(BPlusTreeNode parent, int i, BPlusTreeNode child) {
-        int mid = degree / 2;
+        int mid = (degree - 1) / 2;
         BPlusTreeNode newNode = new BPlusTreeNode(degree, child.isLeaf);
-        parent.children[i + 1] = newNode;
-        newNode.numKeys = child.numKeys - mid - 1;
 
-        for (int j = 0; j < newNode.numKeys; j++) {
-            newNode.keys[j] = child.keys[mid + 1 + j];
-            newNode.offsets[j] = child.offsets[mid + 1 + j];
-        }
+        // Copy the second half of keys and offsets to newNode
+        int numKeysInNewNode = child.numKeys - mid;
+        System.arraycopy(child.keys, mid, newNode.keys, 0, numKeysInNewNode);
+        System.arraycopy(child.offsets, mid, newNode.offsets, 0, numKeysInNewNode);
+        newNode.numKeys = numKeysInNewNode;
 
         if (!child.isLeaf) {
-            for (int j = 0; j <= newNode.numKeys; j++) {
-                newNode.children[j] = child.children[mid + 1 + j];
-            }
+            System.arraycopy(child.children, mid, newNode.children, 0, numKeysInNewNode + 1);
         }
-        child.numKeys = mid;
+
+        // Update parent with new child reference
         for (int j = parent.numKeys; j > i; j--) {
             parent.children[j + 1] = parent.children[j];
             parent.keys[j] = parent.keys[j - 1];
+            parent.offsets[j] = parent.offsets[j - 1];
         }
-        parent.keys[i] = child.keys[mid];
+        parent.children[i + 1] = newNode;
+        parent.keys[i] = child.keys[mid];  // Promote key
         parent.offsets[i] = child.offsets[mid];
         parent.numKeys++;
+
+        child.numKeys = mid;
+
         if (child.isLeaf) {
             newNode.next = child.next;
             child.next = newNode;
