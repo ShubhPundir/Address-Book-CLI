@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class ConfigReader {
     private Map<String, Integer> fieldSizes = new HashMap<>();
+    private boolean configLoaded = false; 
 
     public ConfigReader(String filePath) {
         loadConfig(filePath);
@@ -39,10 +40,15 @@ public class ConfigReader {
                     fieldSizes.put(name, size);
                 }
             }
+            configLoaded = true;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error loading XML config!");
         }
+    }
+
+    public boolean isConfigLoaded(){
+        return configLoaded;
     }
 
     public int getFieldSize(String fieldName) {
