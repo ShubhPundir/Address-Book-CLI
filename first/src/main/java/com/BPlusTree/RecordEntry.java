@@ -1,6 +1,8 @@
 package com.BPlusTree;
 
-class RecordEntry {
+import java.io.Serializable;
+
+class RecordEntry implements Serializable{
     int key;
     long offset;
 

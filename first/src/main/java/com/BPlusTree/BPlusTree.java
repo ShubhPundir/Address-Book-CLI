@@ -5,9 +5,14 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-
-class BPlusTree {
+class BPlusTree implements Serializable{
     int t;
     BPlusTreeNode root;
 
@@ -109,6 +114,95 @@ class BPlusTree {
         System.out.println();
     }
 
+    public void delete(int key) {
+        deleteRecursive(root, key);
+    
+        // Shrink tree height if root is internal with 1 child
+        if (!root.leaf && root.children.size() == 1) {
+            root = root.children.get(0);
+        }
+    }
+    
+    private void deleteRecursive(BPlusTreeNode node, int key) {
+        if (node.leaf) {
+            node.records.removeIf(r -> r.key == key);
+            return;
+        }
+    
+        int idx = 0;
+        while (idx < node.keys.size() && key >= node.keys.get(idx)) idx++;
+    
+        BPlusTreeNode child = node.children.get(idx);
+        deleteRecursive(child, key);
+    
+        // Update internal key if needed
+        if (child.leaf && !child.records.isEmpty()) {
+            int newKey = child.records.get(0).key;
+            if (idx < node.keys.size()) {
+                node.keys.set(idx, newKey);
+            } else if (idx > 0) {
+                node.keys.set(idx - 1, newKey);
+            }
+        } else if (child.leaf && child.records.isEmpty()) {
+            // Remove empty child and its corresponding key
+            node.children.remove(idx);
+            if (idx < node.keys.size()) {
+                node.keys.remove(idx);
+            } else if (idx > 0) {
+                node.keys.remove(idx - 1);
+            }
+        }
+    
+        // Rebalance if needed
+        if (child.leaf && child.records.size() < t - 1) {
+            rebalance(node, idx);
+        }
+    }
+    
+    
+    private void rebalance(BPlusTreeNode parent, int index) {
+        BPlusTreeNode node = parent.children.get(index);
+    
+        // Try borrowing from left sibling
+        if (index > 0) {
+            BPlusTreeNode leftSibling = parent.children.get(index - 1);
+            if (leftSibling.records.size() > t - 1) {
+                // Borrow the last record from left sibling
+                node.records.add(0, leftSibling.records.remove(leftSibling.records.size() - 1));
+                parent.keys.set(index - 1, node.records.get(0).key);
+                return;
+            }
+        }
+    
+        // Try borrowing from right sibling
+        if (index < parent.children.size() - 1) {
+            BPlusTreeNode rightSibling = parent.children.get(index + 1);
+            if (rightSibling.records.size() > t - 1) {
+                // Borrow the first record from right sibling
+                node.records.add(rightSibling.records.remove(0));
+                parent.keys.set(index, rightSibling.records.get(0).key);
+                return;
+            }
+        }
+    
+        // Merge with left sibling
+        if (index > 0) {
+            BPlusTreeNode leftSibling = parent.children.get(index - 1);
+            leftSibling.records.addAll(node.records);
+            parent.children.remove(index);
+            parent.keys.remove(index - 1);
+        }
+        // Merge with right sibling
+        else if (index < parent.children.size() - 1) {
+            BPlusTreeNode rightSibling = parent.children.get(index + 1);
+            node.records.addAll(rightSibling.records);
+            parent.children.remove(index + 1);
+            parent.keys.remove(index);
+        }
+    }
+    
+    
+
     public void printTree() {
         System.out.println("B+ Tree structure:");
         Queue<BPlusTreeNode> q = new LinkedList<>();
@@ -208,40 +302,18 @@ class BPlusTree {
         System.out.println("===========================");
     }
     
-    
- 
-
-    public static void main(String[] args) {
-        BPlusTree tree = new BPlusTree(3);
-
-        // Simulating key-offset insertions (offset as a file pointer)
-        tree.insert(10, 1000L);
-        tree.insert(20, 2000L);
-        tree.insert(5, 500L);
-        tree.insert(6, 600L);
-        tree.insert(12, 1200L);
-        tree.insert(30, 3000L);
-        tree.insert(7, 700L);
-        tree.insert(17, 1700L);
-        tree.insert(120, 1000L);
-        tree.insert(220, 2000L);
-        tree.insert(52, 500L);
-        tree.insert(62, 600L);
-        tree.insert(122, 1200L);
-        tree.insert(320, 3000L);
-        tree.insert(72, 700L);
-        tree.insert(127, 1700L);
-
-        tree.printTree();
-        System.out.println();
-        // tree.printLeaves();
-
-        int searchKey = 12;
-        Long result = tree.search(searchKey);
-        System.out.println("Offset for key " + searchKey + ": " + (result != null ? result : "Not Found"));
-
-        searchKey = 17;
-        result = tree.search(searchKey);
-        System.out.println("Offset for key " + searchKey + ": " + (result != null ? result : "Not Found"));
+    public void saveToFile(String filename) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+            oos.writeObject(this);
+        }
     }
+
+    public static BPlusTree loadFromFile(String filename) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
+            return (BPlusTree) ois.readObject();
+        }
+    }
+    
+
+    
 }

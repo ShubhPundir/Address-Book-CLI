@@ -1,8 +1,9 @@
 package com.BPlusTree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-class BPlusTreeNode {
+class BPlusTreeNode implements Serializable{
     int t;
     boolean leaf;
     ArrayList<Integer> keys; // used only for navigation
