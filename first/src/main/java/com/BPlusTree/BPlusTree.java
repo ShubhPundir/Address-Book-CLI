@@ -1,39 +1,11 @@
-package com.BplusTree;
+package com.BPlusTree;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
-class RecordEntry {
-    int key;
-    long offset;
-
-    RecordEntry(int key, long offset) {
-        this.key = key;
-        this.offset = offset;
-    }
-
-    @Override
-    public String toString() {
-        return "(" + key + " -> " + offset + ")";
-    }
-}
-
-class BPlusTreeNode {
-    int t;
-    boolean leaf;
-    ArrayList<Integer> keys; // used only for navigation
-    ArrayList<BPlusTreeNode> children;
-    ArrayList<RecordEntry> records; // used only in leaf nodes
-    BPlusTreeNode next;
-
-    BPlusTreeNode(boolean leaf, int t) {
-        this.leaf = leaf;
-        this.t = t;
-        this.keys = new ArrayList<>();
-        this.children = new ArrayList<>();
-        this.records = leaf ? new ArrayList<>() : null;
-        this.next = null;
-    }
-}
 
 class BPlusTree {
     int t;
@@ -62,7 +34,7 @@ class BPlusTree {
             node.records.add(i, new RecordEntry(key, offset));
         } else {
             int i = 0;
-            while (i < node.keys.size() && key > node.keys.get(i)) i++;
+            while (i < node.keys.size() && key >= node.keys.get(i)) i++;
             BPlusTreeNode child = node.children.get(i);
             if ((child.leaf && child.records.size() == 2 * t - 1) ||
                 (!child.leaf && child.keys.size() == 2 * t - 1)) {
@@ -118,7 +90,7 @@ class BPlusTree {
             return null;
         } else {
             int i = 0;
-            while (i < node.keys.size() && key > node.keys.get(i)) i++;
+            while (i < node.keys.size() && key >= node.keys.get(i)) i++;
             return search(node.children.get(i), key);
         }
     }
@@ -157,38 +129,87 @@ class BPlusTree {
             System.out.println(sb.toString());
         }
     }
-    /*
-    private void splitChild(BPlusTreeNode parent, int i) {
-        BPlusTreeNode child = parent.children.get(i);
-        BPlusTreeNode newChild = new BPlusTreeNode(child.leaf, t);
 
-        // Move the middle part of keys and children to the new child node
-        int midIndex = t - 1;  // Middle index
-        parent.keys.add(i, child.keys.get(midIndex));  // Promote the middle key to the parent
-
-        // Move the second half of the keys from the child node to the new child
-        for (int j = midIndex + 1; j < child.keys.size(); j++) {
-            newChild.keys.add(child.keys.get(j));
-        }
-
-        // If it's not a leaf node, also move children pointers to the new child
-        if (!child.leaf) {
-            for (int j = midIndex + 1; j < child.children.size(); j++) {
-                newChild.children.add(child.children.get(j));
+    public void bulkLoad(List<RecordEntry> entries) {
+        if (entries.isEmpty()) return;
+        entries.sort(Comparator.comparingInt(e -> e.key));
+        
+        // Step 1: Build leaf level
+        List<BPlusTreeNode> leaves = new ArrayList<>();
+        for (int i = 0; i < entries.size(); i += 2 * t - 1) {
+            BPlusTreeNode leaf = new BPlusTreeNode(true, t);
+            int end = Math.min(i + (2 * t - 1), entries.size());
+            leaf.records.addAll(entries.subList(i, end));
+            if (!leaves.isEmpty()) {
+                leaves.get(leaves.size() - 1).next = leaf;
             }
+            leaves.add(leaf);
         }
-
-        // Remove the moved keys and children from the original child node
-        child.keys.subList(midIndex, child.keys.size()).clear();
-        if (!child.leaf) {
-            child.children.subList(midIndex + 1, child.children.size()).clear();
+    
+        // Step 2: Build internal nodes level-by-level
+        List<BPlusTreeNode> currentLevel = leaves;
+        while (currentLevel.size() > 1) {
+            List<BPlusTreeNode> parents = new ArrayList<>();
+            for (int i = 0; i < currentLevel.size(); i += 2 * t) {
+                BPlusTreeNode parent = new BPlusTreeNode(false, t);
+                int end = Math.min(i + 2 * t, currentLevel.size());
+                parent.children.addAll(currentLevel.subList(i, end));
+                for (int j = i + 1; j < end; j++) {
+                    parent.keys.add(currentLevel.get(j).leaf ? 
+                                    currentLevel.get(j).records.get(0).key : 
+                                    currentLevel.get(j).keys.get(0));
+                }
+                parents.add(parent);
+            }
+            currentLevel = parents;
         }
-
-        // Add the new child to the parent
-        parent.children.add(i + 1, newChild);
+    
+        // Final root
+        this.root = currentLevel.get(0);
     }
 
-     */
+    public int getHeight() {
+        int height = 0;
+        BPlusTreeNode node = root;
+        while (!node.leaf) {
+            node = node.children.get(0);
+            height++;
+        }
+        return height + 1;
+    }
+    
+    public int getLeafCount() {
+        int count = 0;
+        BPlusTreeNode node = root;
+        while (!node.leaf) node = node.children.get(0);
+        while (node != null) {
+            count++;
+            node = node.next;
+        }
+        return count;
+    }
+    
+    public int getTotalRecords() {
+        int count = 0;
+        BPlusTreeNode node = root;
+        while (!node.leaf) node = node.children.get(0);
+        while (node != null) {
+            count += node.records.size();
+            node = node.next;
+        }
+        return count;
+    }
+    
+    public void printMetrics() {
+        System.out.println("===== B+ Tree Metrics =====");
+        System.out.println("Tree Height: " + getHeight());
+        System.out.println("Leaf Node Count: " + getLeafCount());
+        System.out.println("Total Records: " + getTotalRecords());
+        System.out.println("===========================");
+    }
+    
+    
+ 
 
     public static void main(String[] args) {
         BPlusTree tree = new BPlusTree(3);
