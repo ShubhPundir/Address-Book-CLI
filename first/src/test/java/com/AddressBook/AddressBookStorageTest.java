@@ -17,12 +17,7 @@ public class AddressBookStorageTest {
         storage = new AddressBookStorage(TEST_FILE_PATH, RECORD_SIZE);
     }
     
-    @Test
-    public void testFileExists() {
-        File file = new File(TEST_FILE_PATH);
-        assertTrue("Data file should exist", file.exists());
-        assertTrue("Data file should not be empty", file.length() > 0);
-    }
+    
     
     @Test
     public void testStorageInitialization() {

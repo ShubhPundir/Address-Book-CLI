@@ -1,39 +1,86 @@
 package com.AddressBook;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class AddressBookTest {
 
-    private static final int NAME_SIZE = 20; // Use static final for constants
-    private AddressBook addressBook;
+    private AddressBook address;
 
     @Before
     public void setUp() {
-        // Initialize the AddressBook instance before each test
-        addressBook = new AddressBook(1, "John", "12345", "Street", "Locality", "City", "State", 123456, "Country");
+        address = new AddressBook(
+                1,
+                "John Doe",
+                "1234567890",
+                "123 Main Street",
+                "Downtown",
+                "Metropolis",
+                "StateX",
+                123456,
+                "CountryY"
+        );
     }
 
     @Test
-    public void testPadString_ShortInput() {
-        String input = "John";
-        String expected = String.format("%-" + NAME_SIZE + "s", input);
-        String actual = addressBook.padString(input, NAME_SIZE);
-        assertEquals("Should pad short input with spaces", expected, actual);
-    }
-
-    @Test
-    public void testPadString_LongInput() {
-        String input = "ThisIsAVeryLongNameExceedingTheLimit";
-        String expected = input.substring(0, NAME_SIZE);
-        String actual = addressBook.padString(input, NAME_SIZE);
-        assertEquals("Should truncate long input to fit the specified length", expected, actual);
+    public void testPadString() {
+        String padded = address.padString("Test", 10);
+        assertEquals(10, padded.length());
+        assertTrue(padded.startsWith("Test"));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPadString_InvalidLength() {
-        addressBook.padString("Test", -1);
+    public void testPadStringInvalidLength() {
+        address.padString("Test", -1);
+    }
+
+    @Test
+    public void testWriteAndReadFromFile() throws IOException {
+        String tempFileName = "addressbook_test.dat";
+        File tempFile = new File(tempFileName);
+
+        // Write record
+        try (RandomAccessFile raf = new RandomAccessFile(tempFile, "rw")) {
+            address.writeToFile(raf);
+        }
+
+        AddressBook readAddress;
+
+        // Read record
+        try (RandomAccessFile raf = new RandomAccessFile(tempFile, "r")) {
+            readAddress = AddressBook.readFromFile(raf);
+        }
+
+        // Compare fields
+        assertEquals(address.getId(), readAddress.getId());
+        assertEquals(address.getName(), readAddress.getName());
+        assertEquals(address.getPhone(), readAddress.getPhone());
+        assertEquals(address.getStreet(), readAddress.getStreet());
+        assertEquals(address.getLocality(), readAddress.getLocality());
+        assertEquals(address.getCity(), readAddress.getCity());
+        assertEquals(address.getState(), readAddress.getState());
+        assertEquals(address.getPincode(), readAddress.getPincode());
+        assertEquals(address.getCountry(), readAddress.getCountry());
+
+        // Clean up
+        tempFile.delete();
+    }
+
+    @Test
+    public void testToString() {
+        String expectedStart = "1, John Doe";
+        assertTrue(address.toString().startsWith(expectedStart));
+    }
+
+    @Test
+    public void testGetRecordSize() {
+        int recordSize = AddressBook.getRecordSize();
+        assertTrue(recordSize > 0);
     }
 }

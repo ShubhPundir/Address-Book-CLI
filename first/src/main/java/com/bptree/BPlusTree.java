@@ -1,9 +1,10 @@
 package com.bptree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class BPlusTree<K extends Comparable<K>, V> {
+public class BPlusTree<K extends Comparable<K>, V> implements Serializable {
     private int order;
     private Node<K, V> root;
 
@@ -35,9 +36,13 @@ class BPlusTree<K extends Comparable<K>, V> {
         }
         System.out.println();
     }
+
+    public void delete(int i) {
+        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
 }
 
-class Node<K extends Comparable<K>, V> {
+class Node<K extends Comparable<K>, V> implements Serializable {
     List<K> keys = new ArrayList<>();
     List<V> values = new ArrayList<>();
     List<Node<K, V>> children = new ArrayList<>();

@@ -30,7 +30,6 @@ public class AddressBook {
         try {
             initializeConfig();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -39,7 +38,7 @@ public class AddressBook {
         conf = new ConfigReader();
         NAME_SIZE = conf.getFieldSize("Name");
         STREET_SIZE = conf.getFieldSize("Street");
-        // Add other fields if needed
+        // You can extend for more fields here if needed
         System.out.println("Config loaded successfully.");
     }
 
@@ -100,20 +99,24 @@ public class AddressBook {
 
     @Override
     public String toString() {
-        return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " + locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " + country.trim();
+        return id + ", " + name.trim() + ", " + phone.trim() + ", " + street.trim() + ", " +
+               locality.trim() + ", " + city.trim() + ", " + state.trim() + ", " + pincode + ", " +
+               country.trim();
     }
 
     public static int getRecordSize() {
-        return Integer.BYTES * 2 + NAME_SIZE + PHONE_SIZE + STREET_SIZE + LOCALITY_SIZE + CITY_SIZE + STATE_SIZE + COUNTRY_SIZE;
+        return Integer.BYTES * 2 + NAME_SIZE + PHONE_SIZE + STREET_SIZE + LOCALITY_SIZE +
+               CITY_SIZE + STATE_SIZE + COUNTRY_SIZE;
     }
 
+    // Getter methods
     public int getId() { return id; }
     public String getName() { return name.trim(); }
-    public String getStreet() { return street.trim(); }
     public String getPhone() { return phone.trim(); }
+    public String getStreet() { return street.trim(); }
     public String getLocality() { return locality.trim(); }
     public String getCity() { return city.trim(); }
-    public int getPincode() { return pincode; }
     public String getState() { return state.trim(); }
+    public int getPincode() { return pincode; }
     public String getCountry() { return country.trim(); }
 }

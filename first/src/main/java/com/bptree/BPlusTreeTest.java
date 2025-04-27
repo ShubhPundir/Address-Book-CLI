@@ -1,5 +1,6 @@
 package com.bptree;
 
+import com.bloock.sdk.record.entity.Record;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -48,5 +49,35 @@ public class BPlusTreeTest {
         // Display in-order traversal
         System.out.println("In-order Traversal of B+ Tree:");
         bptree.inOrderTraversal();
+    }
+
+    public void insert(int i, long l) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'insert'");
+    }
+
+    public Object search(int i) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'search'");
+    }
+
+    public void saveToFile(String filename) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'saveToFile'");
+    }
+
+    public void bulkLoad(List<Object> entries) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'bulkLoad'");
+    }
+
+    public void delete(int i) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
+
+    public void printTree() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'printTree'");
     }
 }
