@@ -11,12 +11,12 @@ public class ConfigReader {
     private Map<String, Integer> fieldSizes = new HashMap<>();
     private boolean configLoaded = false; 
 
-    public ConfigReader(String filePath) {
-        loadConfig(filePath);
+    public ConfigReader(String database) {
+        loadConfig(System.getProperty("user.dir") + File.separator + "data" +File.separator + database + File.separator + "config.xml");
     }
 
     public ConfigReader() {
-        this(System.getProperty("user.dir") + "/config.xml");
+        this(System.getProperty("user.dir") + "\\data\\AddressRecords\\config.xml");
     }
 
     private void loadConfig(String filePath) {

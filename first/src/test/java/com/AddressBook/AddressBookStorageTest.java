@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 public class AddressBookStorageTest {
     private AddressBookStorage storage;
-    private final String testFileName = "test_address_book.bin";
+    private final String testFileName = "data/AddressRecords/binary/test_address_book.bin";
     private AddressBook testRecord1;
     private AddressBook testRecord2;
 

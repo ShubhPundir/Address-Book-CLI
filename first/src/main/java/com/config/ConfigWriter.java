@@ -18,10 +18,26 @@ import java.util.LinkedHashMap;
 
 public class ConfigWriter {
 
-    private final Map<String, Integer> fieldConfig = new LinkedHashMap<>();
+    private static class FieldInfo {
+        int size;
+        String dtype;
 
-    public void addField(String name, int size) {
-        fieldConfig.put(name, size);
+        FieldInfo(int size, String dtype) {
+            this.size = size;
+            this.dtype = dtype;
+        }
+    }
+
+    private final Map<String, FieldInfo> fieldConfig = new LinkedHashMap<>();
+
+    public void addField(String name, int size, String dtype) {
+        fieldConfig.put(name, new FieldInfo(size, dtype));
+    }
+
+    private static boolean isValidDtype(String dtype) {
+        return dtype.equalsIgnoreCase("INT") ||
+               dtype.equalsIgnoreCase("FLOAT") ||
+               dtype.equalsIgnoreCase("STRING");
     }
 
     public void writeToFile(String filePath) {
@@ -33,10 +49,11 @@ public class ConfigWriter {
             Element root = doc.createElement("record");
             doc.appendChild(root);
 
-            for (Map.Entry<String, Integer> entry : fieldConfig.entrySet()) {
+            for (Map.Entry<String, FieldInfo> entry : fieldConfig.entrySet()) {
                 Element field = doc.createElement("field");
                 field.setAttribute("name", entry.getKey());
-                field.setAttribute("size", String.valueOf(entry.getValue()));
+                field.setAttribute("size", String.valueOf(entry.getValue().size));
+                field.setAttribute("dtype", entry.getValue().dtype.toUpperCase());
                 root.appendChild(field);
             }
 
@@ -68,10 +85,22 @@ public class ConfigWriter {
 
             System.out.print("Field size (integer): ");
             int size = Integer.parseInt(scanner.nextLine());
-            writer.addField(name, size);
+
+            String dtype;
+            while (true) {
+                System.out.print("Field data type (INT, FLOAT, STRING): ");
+                dtype = scanner.nextLine();
+                if (isValidDtype(dtype)) {
+                    break;
+                } else {
+                    System.out.println("Invalid data type! Only INT, FLOAT, STRING are allowed.");
+                }
+            }
+
+            writer.addField(name, size, dtype.toUpperCase());
         }
         scanner.close();
-        
+
         String defaultPath = System.getProperty("user.dir") + "/config.xml";
         writer.writeToFile(defaultPath);
     }
