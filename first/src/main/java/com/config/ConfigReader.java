@@ -1,24 +1,25 @@
 package com.config;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.*;
+import javax.xml.parsers.*;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigReader {
-    private Map<String, Integer> fieldSizes = new HashMap<>();
-    private boolean configLoaded = false; 
+    private Map<String, Integer> fieldSizes = new LinkedHashMap<>(); // Use LinkedHashMap to preserve field order
+    private boolean configLoaded = false;
 
+    // Constructor to load the config from a specific database
     public ConfigReader(String database) {
-        loadConfig(System.getProperty("user.dir") + File.separator + "data" +File.separator + database + File.separator + "config.xml");
+        loadConfig(System.getProperty("user.dir") + File.separator + "data" + File.separator + database + File.separator + "config.xml");
     }
 
+    // Default constructor for AddressRecords database
     public ConfigReader() {
-        this(System.getProperty("user.dir") + "\\data\\AddressRecords\\config.xml");
+        this("AddressRecords");
     }
 
+    // Load the configuration from XML
     private void loadConfig(String filePath) {
         try {
             File xmlFile = new File(filePath);
@@ -47,8 +48,12 @@ public class ConfigReader {
         }
     }
 
-    public boolean isConfigLoaded(){
+    public boolean isConfigLoaded() {
         return configLoaded;
+    }
+
+    public Map<String, Integer> getFields() {
+        return fieldSizes;
     }
 
     public int getFieldSize(String fieldName) {
@@ -59,7 +64,7 @@ public class ConfigReader {
         return fieldSizes.values().stream().mapToInt(Integer::intValue).sum();
     }
 
-    public Map<String, Integer> getFields() {
-        return fieldSizes;
+    public List<String> getFieldNames() {
+        return new ArrayList<>(fieldSizes.keySet());
     }
 }
