@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <schema>
-    <field dtype="INT" name="Id" size="4"/>
+    <field dtype="INT" name="ID" size="4"/>
     <field dtype="STRING" name="Name" size="30"/>
-    <field dtype="STRING" name="Phone" size="15"/>
-    <field dtype="INT" name="Pincode" size="6"/>
+    <field dtype="INT" name="Age" size="4"/>
 </schema>

@@ -2,101 +2,88 @@ package com.BinaryFileHandler;
 
 import com.config.ConfigReader;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class BinaryFileHandler {
-    private ConfigReader config;
 
-    public BinaryFileHandler(ConfigReader config) {
-        this.config = config;
+    private final File binaryFile;
+    private final ConfigReader configReader;
+    private final int recordSize;
+    private BinaryRecord temp;
+
+    public BinaryFileHandler(String dbName) {
+        String basePath = System.getProperty("user.dir") + File.separator + "data" + File.separator + dbName + File.separator + "binary";
+        binaryFile = new File(basePath + File.separator +  "records.data"); // currently points to one particular binary-file
+        // NOTE: to change this fixed pointer to slider in the directory once mulitple files are established
+
+        if (!binaryFile.getParentFile().exists()) {
+            binaryFile.getParentFile().mkdirs(); // Ensure directory exists
+        }
+        configReader = new ConfigReader(dbName);
+        this.recordSize = configReader.getRecordSize();
+        this.temp = new BinaryRecord(configReader); // temporary object for BinaryRecord to call non-static functions
     }
 
-    public void writeRecord(RandomAccessFile file, Map<String, Object> record) throws IOException {
-        for (String fieldName : config.getFieldNames()) {
-            int size = config.getFieldSize(fieldName);
-            Object value = record.getOrDefault(fieldName, ""); // default empty if missing
-    
-            if (value instanceof Integer) {
-                file.writeInt((Integer) value);
-            } else if (value instanceof String) {
-                String str = (String) value;
-                str = padString(str, size);
-                file.write(str.getBytes(StandardCharsets.UTF_8), 0, size);
-            } else {
-                throw new IllegalArgumentException("Unsupported data type for field: " + fieldName);
+    public void writeRecord(BinaryRecord record) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(binaryFile, "rw")) {
+            raf.seek(raf.length()); // Go to end for append
+            raf.write(record.toByteArray());
+        }
+    }
+
+    public List<BinaryRecord> readAllRecords() throws IOException {
+        List<BinaryRecord> records = new ArrayList<>();
+        try (RandomAccessFile raf = new RandomAccessFile(binaryFile, "r")) {
+            long numRecords = raf.length() / recordSize;
+            for (int i = 0; i < numRecords; i++) {
+                byte[] buffer = new byte[recordSize];
+                raf.readFully(buffer);
+                records.add(temp.fromByteArray(buffer));
             }
         }
+        return records;
     }
-    
 
-    public Map<String, Object> readRecord(RandomAccessFile file) throws IOException {
-        Map<String, Object> record = new LinkedHashMap<>(); // Maintain field order
-        for (String fieldName : config.getFieldNames()) {
-            int size = config.getFieldSize(fieldName);
-            if (fieldName.equalsIgnoreCase("id") || fieldName.equalsIgnoreCase("pincode")) {
-                int value = file.readInt();
-                record.put(fieldName, value);
-            } else {
-                byte[] bytes = new byte[size];
-                file.readFully(bytes);
-                String value = new String(bytes, StandardCharsets.UTF_8).trim();
-                record.put(fieldName, value);
-            }
+    public BinaryRecord readRecordAt(int index) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(binaryFile, "r")) {
+            raf.seek((long) index * recordSize);
+            byte[] buffer = new byte[recordSize];
+            raf.readFully(buffer);
+            return temp.fromByteArray(buffer);
         }
-        return record;
     }
 
-    public void updateRecordByIndex(RandomAccessFile file, long index, Map<String, Object> updatedValues) throws IOException {
-        long recordSize = config.getRecordSize();
-        long positionToUpdate = index * recordSize;
-    
-        // Ensure the record is within bounds
-        if (positionToUpdate >= file.length()) {
-            throw new IOException("Record index out of bounds");
+    public void updateRecordAt(int index, BinaryRecord newRecord) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(binaryFile, "rw")) {
+            raf.seek((long) index * recordSize);
+            raf.write(newRecord.toByteArray());
         }
-    
-        // Step 1: Move the file pointer to the record to be updated
-        file.seek(positionToUpdate);
-    
-        // Step 2: Read the record and delete (skip it)
-        Map<String, Object> oldRecord = readRecord(file);
-        
-        // Step 3: Now write the updated record
-        writeRecord(file, updatedValues);
-    
-        // You don’t need a separate "delete" method, because when writing the new record, 
-        // we are effectively overwriting the old one.
-        
-        // No need for any other record compaction here; the file will be overwritten in place.
     }
-    
 
-    public void updateRecordByCondition(RandomAccessFile file, String fieldName, Object targetValue, Map<String, Object> updatedFields) throws IOException {
-        long recordSize = config.getRecordSize();
-        long totalRecords = file.length() / recordSize;
+    public void deleteRecordAt(int index) throws IOException {
+        File tempFile = new File(binaryFile.getParent(), "temp.data");
+        try (RandomAccessFile raf = new RandomAccessFile(binaryFile, "r");
+             RandomAccessFile tempRaf = new RandomAccessFile(tempFile, "rw")) {
 
-        for (long i = 0; i < totalRecords; i++) {
-            file.seek(i * recordSize);
-            Map<String, Object> record = readRecord(file);
-
-            Object fieldValue = record.get(fieldName);
-            if (fieldValue != null && fieldValue.equals(targetValue)) {
-                file.seek(i * recordSize);
-                for (Map.Entry<String, Object> entry : updatedFields.entrySet()) {
-                    record.put(entry.getKey(), entry.getValue());
+            long numRecords = raf.length() / recordSize;
+            for (int i = 0; i < numRecords; i++) {
+                byte[] buffer = new byte[recordSize];
+                raf.readFully(buffer);
+                if (i != index) {
+                    tempRaf.write(buffer);
                 }
-                writeRecord(file, record);
             }
         }
-    }
 
-    private String padString(String input, int length) {
-        if (input == null) input = "";
-        if (input.length() > length) {
-            return input.substring(0, length);
+        if (binaryFile.delete() && tempFile.renameTo(binaryFile)) {
+            System.out.println("Record deleted successfully.");
+        } else {
+            System.out.println("Failed to delete record.");
         }
-        return String.format("%-" + length + "s", input); // Left align and pad with spaces
     }
 }
