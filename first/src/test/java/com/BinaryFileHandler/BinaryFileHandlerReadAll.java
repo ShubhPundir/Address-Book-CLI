@@ -2,7 +2,6 @@ package com.BinaryFileHandler;
 
 import java.util.List;
 
-import com.config.ConfigReader;
 
 public class BinaryFileHandlerReadAll {
     public static void main(String[] args) {
