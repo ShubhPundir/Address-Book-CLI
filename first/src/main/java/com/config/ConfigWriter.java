@@ -13,7 +13,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.LinkedHashMap;
 
 public class ConfigWriter {
@@ -23,11 +22,16 @@ public class ConfigWriter {
 
     // Method to add a field to the fieldConfig map
     public void addField(String name, int size, String dtype) {
+        // Validate data type before adding the field
+        if (!isValidDtype(dtype)) {
+            System.out.println("Invalid data type for field " + name + ". It must be one of: INT, FLOAT, STRING.");
+            return;
+        }
         fieldConfig.put(name, new FieldInfo(size, dtype));
     }
 
     // Validates the data type input
-    private static boolean isValidDtype(String dtype) {
+    public static boolean isValidDtype(String dtype) {
         return dtype.equalsIgnoreCase("INT") ||
                dtype.equalsIgnoreCase("FLOAT") ||
                dtype.equalsIgnoreCase("STRING");
@@ -71,39 +75,4 @@ public class ConfigWriter {
         }
     }
 
-    // Main method to run the interactive input from the user and write the configuration
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        ConfigWriter writer = new ConfigWriter();
-
-        System.out.println("Enter fields for your database schema.");
-        
-        // Interactive loop for user to input field details
-        while (true) {
-            System.out.print("Field name (or type 'done' to finish): ");
-            String name = scanner.nextLine();
-            if (name.equalsIgnoreCase("done")) break;
-
-            System.out.print("Field size (integer): ");
-            int size = Integer.parseInt(scanner.nextLine());
-
-            String dtype;
-            while (true) {
-                System.out.print("Field data type (INT, FLOAT, STRING): ");
-                dtype = scanner.nextLine();
-                if (isValidDtype(dtype)) {
-                    break;
-                } else {
-                    System.out.println("Invalid data type! Only INT, FLOAT, STRING are allowed.");
-                }
-            }
-
-            writer.addField(name, size, dtype.toUpperCase());
-        }
-        scanner.close();
-
-        // Default file path where configuration will be written
-        String defaultPath = System.getProperty("user.dir") + "/config.xml";
-        writer.writeToFile(defaultPath);
-    }
 }

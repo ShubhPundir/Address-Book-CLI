@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<schema>
+    <field dtype="INT" name="id" size="4"/>
+</schema>
