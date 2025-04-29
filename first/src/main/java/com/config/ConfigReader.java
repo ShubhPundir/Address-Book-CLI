@@ -6,20 +6,20 @@ import java.io.File;
 import java.util.*;
 
 public class ConfigReader {
-    private Map<String, Integer> fieldSizes = new LinkedHashMap<>(); // Use LinkedHashMap to preserve field order
+    private final LinkedHashMap<String, FieldInfo> fieldInfoMap = new LinkedHashMap<>();
     private boolean configLoaded = false;
 
-    // Constructor to load the config from a specific database
+    // Constructor to load from specific database
     public ConfigReader(String database) {
         loadConfig(System.getProperty("user.dir") + File.separator + "data" + File.separator + database + File.separator + "config.xml");
     }
 
-    // Default constructor for AddressRecords database
+    // Default constructor
     public ConfigReader() {
         this("AddressRecords");
     }
 
-    // Load the configuration from XML
+    // Load the configuration
     private void loadConfig(String filePath) {
         try {
             File xmlFile = new File(filePath);
@@ -38,7 +38,10 @@ public class ConfigReader {
                     Element element = (Element) node;
                     String name = element.getAttribute("name");
                     int size = Integer.parseInt(element.getAttribute("size"));
-                    fieldSizes.put(name, size);
+                    String dtype = element.getAttribute("dtype");
+
+                    FieldInfo fieldInfo = new FieldInfo(size, dtype);
+                    fieldInfoMap.put(name, fieldInfo);
                 }
             }
             configLoaded = true;
@@ -48,23 +51,30 @@ public class ConfigReader {
         }
     }
 
+    // Public Getters
     public boolean isConfigLoaded() {
         return configLoaded;
     }
 
-    public Map<String, Integer> getFields() {
-        return fieldSizes;
+    public LinkedHashMap<String, FieldInfo> getFieldInfoMap() {
+        return fieldInfoMap;
     }
 
     public int getFieldSize(String fieldName) {
-        return fieldSizes.getOrDefault(fieldName, -1);
+        FieldInfo info = fieldInfoMap.get(fieldName);
+        return info != null ? info.getSize() : -1;
+    }
+
+    public String getFieldDtype(String fieldName) {
+        FieldInfo info = fieldInfoMap.get(fieldName);
+        return info != null ? info.getDtype() : null;
     }
 
     public int getRecordSize() {
-        return fieldSizes.values().stream().mapToInt(Integer::intValue).sum();
+        return fieldInfoMap.values().stream().mapToInt(FieldInfo::getSize).sum();
     }
 
     public List<String> getFieldNames() {
-        return new ArrayList<>(fieldSizes.keySet());
+        return new ArrayList<>(fieldInfoMap.keySet());
     }
 }

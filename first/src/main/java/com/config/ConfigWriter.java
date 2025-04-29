@@ -18,50 +18,48 @@ import java.util.LinkedHashMap;
 
 public class ConfigWriter {
 
-    private static class FieldInfo {
-        int size;
-        String dtype;
-
-        FieldInfo(int size, String dtype) {
-            this.size = size;
-            this.dtype = dtype;
-        }
-    }
-
+    // Store field names, sizes, and types in LinkedHashMap to maintain the insertion order
     private final Map<String, FieldInfo> fieldConfig = new LinkedHashMap<>();
 
+    // Method to add a field to the fieldConfig map
     public void addField(String name, int size, String dtype) {
         fieldConfig.put(name, new FieldInfo(size, dtype));
     }
 
+    // Validates the data type input
     private static boolean isValidDtype(String dtype) {
         return dtype.equalsIgnoreCase("INT") ||
                dtype.equalsIgnoreCase("FLOAT") ||
                dtype.equalsIgnoreCase("STRING");
     }
 
-    public void writeToFile(String filePath) {
+    // Method to write the configuration to an XML file
+    public void writeToFile(String database) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-
             Document doc = builder.newDocument();
-            Element root = doc.createElement("record");
+
+            // Root element for the XML document
+            Element root = doc.createElement("schema");
             doc.appendChild(root);
 
+            // Add each field as a "field" element in the XML
             for (Map.Entry<String, FieldInfo> entry : fieldConfig.entrySet()) {
                 Element field = doc.createElement("field");
                 field.setAttribute("name", entry.getKey());
-                field.setAttribute("size", String.valueOf(entry.getValue().size));
-                field.setAttribute("dtype", entry.getValue().dtype.toUpperCase());
+                field.setAttribute("size", String.valueOf(entry.getValue().getSize()));
+                field.setAttribute("dtype", entry.getValue().getDtype().toUpperCase());
                 root.appendChild(field);
             }
 
+            // Prepare the XML document for output
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
             DOMSource source = new DOMSource(doc);
+            String filePath = System.getProperty("user.dir") + File.separator + "data" + File.separator + database + File.separator + "config.xml";
             StreamResult result = new StreamResult(new File(filePath));
             transformer.transform(source, result);
 
@@ -73,11 +71,14 @@ public class ConfigWriter {
         }
     }
 
+    // Main method to run the interactive input from the user and write the configuration
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ConfigWriter writer = new ConfigWriter();
 
         System.out.println("Enter fields for your database schema.");
+        
+        // Interactive loop for user to input field details
         while (true) {
             System.out.print("Field name (or type 'done' to finish): ");
             String name = scanner.nextLine();
@@ -101,6 +102,7 @@ public class ConfigWriter {
         }
         scanner.close();
 
+        // Default file path where configuration will be written
         String defaultPath = System.getProperty("user.dir") + "/config.xml";
         writer.writeToFile(defaultPath);
     }
