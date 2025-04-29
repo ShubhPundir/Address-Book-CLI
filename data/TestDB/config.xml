@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <schema>
-    <field dtype="INT" name="id" size="4"/>
+    <field dtype="INT" name="ID" size="4"/>
+    <field dtype="STRING" name="Name" size="10"/>
+    <field dtype="FLOAT" name="Salary" size="10"/>
 </schema>

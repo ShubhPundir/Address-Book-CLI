@@ -16,6 +16,18 @@ public class BinaryFileHandler {
     private final int recordSize;
 
 
+    public BinaryFileHandler(String dbName, String filename) {
+        String basePath = System.getProperty("user.dir") + File.separator + "data" + File.separator + dbName + File.separator + "binary";
+        binaryFile = new File(basePath + File.separator +  filename); // currently points to one particular binary-file
+        // NOTE: to change this fixed pointer to slider in the directory once mulitple files are established
+
+        if (!binaryFile.getParentFile().exists()) {
+            binaryFile.getParentFile().mkdirs(); // Ensure directory exists
+        }
+        configReader = new ConfigReader(dbName);
+        this.recordSize = configReader.getRecordSize();
+    }
+    
     public BinaryFileHandler(String dbName) {
         String basePath = System.getProperty("user.dir") + File.separator + "data" + File.separator + dbName + File.separator + "binary";
         binaryFile = new File(basePath + File.separator +  "records.data"); // currently points to one particular binary-file
