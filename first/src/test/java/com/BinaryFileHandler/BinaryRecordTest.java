@@ -30,8 +30,8 @@ public class BinaryRecordTest {
             byte[] bytes = record.toByteArray();
 
             // 5. Create a new BinaryRecord instance (simulate reading from file)
-            BinaryRecord newRecord = new BinaryRecord(schema);
-            newRecord.fromByteArray(bytes);
+            BinaryRecord newRecord = new BinaryRecord(reader);
+            newRecord = BinaryRecord.fromByteArray(bytes, reader);
 
             // Print the restored record after conversion
             System.out.println("\nRestored Record:");

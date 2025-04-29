@@ -28,6 +28,7 @@ public class BinaryRecord {
         this.data = new LinkedHashMap<>();
     }
 
+
     // Adds a field value with validation
     public void addFieldValue(String fieldName, Object value) throws IllegalArgumentException {
         FieldInfo info = schema.get(fieldName);
@@ -113,7 +114,7 @@ public class BinaryRecord {
         return baos.toByteArray();
     }
     
-    public BinaryRecord fromByteArray(byte[] bytes) throws IOException {
+    public static BinaryRecord fromByteArray(byte[] bytes, ConfigReader schema) throws IOException {
         BinaryRecord record = new BinaryRecord(schema);
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(bytes));
 

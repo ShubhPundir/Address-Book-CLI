@@ -14,7 +14,7 @@ public class BinaryFileHandler {
     private final File binaryFile;
     private final ConfigReader configReader;
     private final int recordSize;
-    private BinaryRecord temp;
+
 
     public BinaryFileHandler(String dbName) {
         String basePath = System.getProperty("user.dir") + File.separator + "data" + File.separator + dbName + File.separator + "binary";
@@ -26,7 +26,6 @@ public class BinaryFileHandler {
         }
         configReader = new ConfigReader(dbName);
         this.recordSize = configReader.getRecordSize();
-        this.temp = new BinaryRecord(configReader); // temporary object for BinaryRecord to call non-static functions
     }
 
     public void writeRecord(BinaryRecord record) throws IOException {
@@ -43,7 +42,7 @@ public class BinaryFileHandler {
             for (int i = 0; i < numRecords; i++) {
                 byte[] buffer = new byte[recordSize];
                 raf.readFully(buffer);
-                records.add(temp.fromByteArray(buffer));
+                records.add(BinaryRecord.fromByteArray(buffer, configReader));
             }
         }
         return records;
@@ -54,7 +53,7 @@ public class BinaryFileHandler {
             raf.seek((long) index * recordSize);
             byte[] buffer = new byte[recordSize];
             raf.readFully(buffer);
-            return temp.fromByteArray(buffer);
+            return BinaryRecord.fromByteArray(buffer, configReader);
         }
     }
 
