@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -14,7 +13,7 @@ public class AddressBookGUI extends JFrame {
     private DefaultListModel<Contact> contactModel;
     private ArrayList<Contact> contacts;
     private CSVHandler csvHandler;
-    private String csvDirectory = "data/csv/";
+    private String csvDirectory = "data/AddressRecords/csv/";
 
     public AddressBookGUI() {
         setTitle("Address Book");
@@ -215,4 +214,4 @@ public class AddressBookGUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginSignUpPage().setVisible(true));
     }
-}
+} 
